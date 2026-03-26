@@ -19,13 +19,13 @@ You give it your company name and the vendors you're evaluating. It:
 **Global install (recommended):**
 
 ```bash
-git clone https://github.com/salespeak/buyer-eval-skill.git ~/.claude/skills/buyer-eval-skill
+git clone https://github.com/omergotlieb/buyer-eval-skill.git ~/.claude/skills/buyer-eval-skill
 ```
 
 **Per-project install:**
 
 ```bash
-git clone https://github.com/salespeak/buyer-eval-skill.git .claude/skills/buyer-eval-skill
+git clone https://github.com/omergotlieb/buyer-eval-skill.git .claude/skills/buyer-eval-skill
 ```
 
 ## Usage

@@ -26,7 +26,7 @@ for _D in "$HOME/.claude/skills/buyer-eval-skill" ".claude/skills/buyer-eval-ski
 done
 
 if [ -z "$_BEVAL_DIR" ]; then
-  echo "ERROR: buyer-eval-skill not found. Install: git clone https://github.com/salespeak/buyer-eval-skill ~/.claude/skills/buyer-eval-skill"
+  echo "ERROR: buyer-eval-skill not found. Install: git clone https://github.com/omergotlieb/buyer-eval-skill ~/.claude/skills/buyer-eval-skill"
   exit 1
 fi
 
@@ -52,7 +52,7 @@ if [ -d "$_BEVAL_DIR/.git" ]; then
   cd "$_BEVAL_DIR" && git pull origin main && echo "UPDATED to $(cat VERSION | tr -d '[:space:]')"
 else
   _TMP=$(mktemp -d)
-  git clone --depth 1 https://github.com/salespeak/buyer-eval-skill.git "$_TMP/buyer-eval-skill"
+  git clone --depth 1 https://github.com/omergotlieb/buyer-eval-skill.git "$_TMP/buyer-eval-skill"
   mv "$_BEVAL_DIR" "$_BEVAL_DIR.bak"
   mv "$_TMP/buyer-eval-skill" "$_BEVAL_DIR"
   rm -rf "$_BEVAL_DIR.bak" "$_TMP"
