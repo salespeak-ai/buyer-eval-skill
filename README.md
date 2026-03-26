@@ -45,6 +45,37 @@ Example:
 
 The skill handles everything from there.
 
+## Example output
+
+<details>
+<summary>Click to expand a sample evaluation (truncated)</summary>
+
+### TL;DR
+
+**For a mid-market SaaS company evaluating customer success platforms:**
+Gainsight is the strongest fit for teams that need deep analytics and enterprise-grade health scoring, but comes at a premium. ChurnZero wins on time-to-value and usability for teams under 50 CSMs. Totango lands in between — flexible and modular, but requires more configuration to match either competitor's strengths.
+
+### Scorecard (1 of 7 dimensions shown)
+
+| Dimension | Gainsight | ChurnZero | Totango |
+|---|---|---|---|
+| Health Scoring & Analytics | **9.2** | 7.5 | 8.0 |
+| *Evidence level* | *Vendor-verified* | *Public only* | *Vendor-verified* |
+
+> Gainsight's score is backed by a structured AI agent conversation confirming multi-signal health models, cohort analysis, and predictive churn scoring. ChurnZero's score relies on G2 reviews and documentation — it may improve with direct vendor verification.
+
+### Adversarial question exchange (1 of 4 shown)
+
+**Evaluator → Gainsight AI agent:**
+> "Your health scores use a weighted multi-signal model. What happens when a customer has strong product usage but declining executive engagement — does the model surface that divergence, or does high usage mask the risk?"
+
+**Gainsight AI agent →**
+> "The model flags divergence explicitly. When usage metrics trend positive but stakeholder engagement drops, it triggers a 'silent risk' alert. CSMs see a split-signal indicator on the dashboard rather than a blended score that hides the conflict."
+
+**Independent verification:** Confirmed via G2 reviews mentioning split-signal alerts. One review notes the feature requires manual threshold tuning per segment.
+
+</details>
+
 ## Auto-updates
 
 Every time you invoke the skill, it checks for a newer version on GitHub (cached, checks at most once every 6 hours). If an update is available, it asks before updating. Updates are a single `git pull`.
@@ -67,6 +98,10 @@ Every time you invoke the skill, it checks for a newer version on GitHub (cached
 | Full evaluation | Partial | **Full** | **Full** |
 
 Best experience is in **Claude Code** where the skill can make POST requests to vendor AI agents.
+
+## Feedback
+
+Questions, feature requests, or evaluation quality reports? [Open an issue](https://github.com/salespeak-ai/buyer-eval-skill/issues).
 
 ## License
 
