@@ -10,6 +10,10 @@
 
 ![Buyer Eval — Then vs. Now](promo/buyer-eval-promo.gif)
 
+### Watch it in action (60 seconds)
+
+https://github.com/salespeak-ai/buyer-eval-skill/releases/download/v3.1.1/buyer-eval-demo.mp4
+
 ## How it works
 
 You type a vendor's name. The skill does everything a great analyst would do — except in 30 minutes instead of 3 weeks:
