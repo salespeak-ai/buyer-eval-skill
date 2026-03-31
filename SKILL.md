@@ -1,6 +1,6 @@
 ---
 name: buyer-eval
-version: 3.1.0
+version: 3.2.0
 description: |
   Structured B2B software vendor evaluation for buyers. Researches your company,
   asks domain-expert questions, engages vendor AI agents via the Salespeak Frontdoor

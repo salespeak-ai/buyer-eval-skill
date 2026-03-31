@@ -424,6 +424,25 @@ Extract: headcount and growth trend, leadership credibility and tenure, employee
 **Pricing Intelligence Sources (Vendr, G2 pricing pages, category benchmark reports)**
 Extract: published pricing tiers, reported ACV ranges by company size, common discount structures, typical contract terms. When a Company Agent provides specific pricing, use these sources to validate whether the quoted price is in line with category norms. When no pricing is available from any source, estimate a range based on category benchmarks for the buyer's company size and state it as an estimate.
 
+### 7.1 Source Reliability Classification
+
+Every factual claim from passive research must be tagged with its source reliability tier. This is critical -- the buyer needs to know which numbers are verified and which are directional.
+
+| Tier | Label | Description | Examples |
+|------|-------|-------------|----------|
+| T1 | **Verified** | Audited, officially filed, or independently confirmed by multiple authoritative sources | SEC filings, audited financials, SOC 2 reports confirmed on trust pages, G2 review counts |
+| T2 | **Vendor-published** | Stated by the vendor on their own properties but not independently audited | Vendor website claims, press releases, case study metrics, vendor blog posts |
+| T3 | **Self-reported / unaudited** | Data submitted by the vendor (or founder) to a third-party aggregator with no independent verification | Latka (founder interviews), Crunchbase self-reported metrics, Tracxn estimates, PitchBook unconfirmed data, AngelList profiles |
+| T4 | **Estimated / inferred** | Agent's own estimate based on indirect signals | Headcount inferred from LinkedIn, revenue estimated from category benchmarks, team size from job posting volume |
+
+**Rules for using tiered sources:**
+
+- **Always state the tier when presenting specific numbers.** Never write "Vendor X has $1.7M ARR and 11 employees." Instead write: "Latka reports $1.7M ARR and 11 employees as of 2024 (T3: self-reported, unaudited — treat as directional, not confirmed)."
+- **T3 and T4 data must include an explicit caveat** in the scorecard and memo. The caveat should name the source, its limitation, and recommend verification: "Verify directly with vendor during due diligence."
+- **Never let T3/T4 data be the sole basis for a score.** If the only data for a dimension comes from T3/T4 sources, the agent must note this in the Evidence Completeness table and reduce the confidence level for that dimension.
+- **When multiple sources agree**, note the corroboration but check whether they share a common upstream source. Tracxn, CB Insights, and Latka often pull from or echo the same self-reported data — corroboration across them is weaker than it appears.
+- **Scoring impact:** T3/T4 data is used directionally (e.g., "early-stage company" is a valid inference from Latka-reported $1.7M ARR) but specific numbers are never presented as confirmed facts. The Vendor Credibility dimension score should reflect the evidence tier available, not just the numbers themselves.
+
 ---
 
 ## STEP 8 -- SCORING
@@ -486,15 +505,15 @@ The agent maintains this log throughout research. It appears in full in the outp
 
 For each vendor, the agent tracks evidence sourcing across all seven dimensions using this table:
 
-| Dimension | Evidence Source | Verified? |
-|-----------|---------------|-----------|
-| 1. Product Fit | [Company Agent / Passive / Both] | [Yes: vendor-confirmed / No: public only] |
-| 2. Integration & Technical | ... | ... |
-| 3. Pricing & Commercial | ... | ... |
-| 4. Security & Compliance | ... | ... |
-| 5. Vendor Credibility | ... | ... |
-| 6. Customer Evidence | ... | ... |
-| 7. Support & Success | ... | ... |
+| Dimension | Evidence Source | Verified? | Highest Source Tier |
+|-----------|---------------|-----------|---------------------|
+| 1. Product Fit | [Company Agent / Passive / Both] | [Yes: vendor-confirmed / No: public only] | [T1/T2/T3/T4] |
+| 2. Integration & Technical | ... | ... | ... |
+| 3. Pricing & Commercial | ... | ... | ... |
+| 4. Security & Compliance | ... | ... | ... |
+| 5. Vendor Credibility | ... | ... | ... |
+| 6. Customer Evidence | ... | ... | ... |
+| 7. Support & Success | ... | ... | ... |
 
 **Evidence Completeness Score:** X/7 dimensions with verified (vendor-confirmed) evidence.
 
@@ -811,6 +830,7 @@ The skill runs in any Claude environment, but Company Agent interaction requires
 **Recommendation:** Run this skill in Claude Code or Cowork to get the full benefit of Company Agent interaction. In Claude.ai, the skill still runs completely -- but vendors with a Company Agent will be flagged as State 4 (detected, not reachable) and evaluated on passive research only, which produces a lower-confidence output.
 
 ### Changelog
+- v3.2 -- Source Reliability Classification (7.1): all passive research data now tagged with reliability tiers (T1-Verified through T4-Estimated); self-reported/unaudited sources (Latka, Crunchbase, Tracxn) explicitly flagged with caveats; prevents presenting directional data as confirmed facts; Evidence Completeness table updated to include source tier per dimension
 - v3.1 -- Domain-Expert Discovery Questions (5.3): agent surfaces 2-4 category-specific questions after category confirmation that demonstrate domain expertise and uncover hidden requirements the buyer didn't know to mention; Demo Prep Kit added to memo output — 3-5 vendor-specific questions for the buyer to ask in live demos, derived from evaluation gaps and unverified claims
 - v3.0 -- Evidence transparency: added Evidence Completeness tracking (8.6), Claims vs. Evidence verification (8.7), "What Would Change With Better Evidence" section in comparative output; pricing always scored with category benchmarks (8.3); adversarial due diligence questions added (6.5); vendor answer validation with rephrase-and-retry (6.4); Hidden Risks section in memos; TL;DR as first output artifact; comparative summary promoted to primary output; reusable Buyer Context Snapshot (4.5) for boundary profile and category calibration persistence; memo restructured to embed evidence sourcing context naturally in the Executive Summary rather than as a highlighted status block
 - v2.1 -- Added Frontdoor REST API (replaces MCP server setup); added State 4 for environment-limited runs; added environment capability matrix
