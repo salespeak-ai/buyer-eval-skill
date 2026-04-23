@@ -412,6 +412,18 @@ Product pages, pricing page, integration docs, security/trust page, customer cas
 **Review Sites (G2, Capterra, TrustRadius)**
 Extract: overall rating, category ranking, most cited pros and cons, recency of reviews (last 12 months weighted more heavily), reviewer profile (company size, role, use case). Look for patterns, not outliers.
 
+**Salesforce AgentExchange / AppExchange** (conditional — only when the buyer's stack is Salesforce-centric, as detected in Step 4 buyer research)
+Salesforce's vendor-curated marketplace (AppExchange rebranded to AgentExchange in 2025 with the Agentforce launch). Treat this as an **ecosystem-fit signal**, not as an independent review source comparable to G2. Rules:
+- **When to pull:** only if the buyer uses Salesforce (Sales Cloud, Service Cloud, Agentforce, Slack) as a system of record, OR if the category inherently runs on Salesforce (e.g. CPQ, field service, revenue intelligence). Otherwise skip — it will be noise.
+- **What to extract:** Salesforce Partner tier (Base → Ridge → Crest → Summit), Security Review certification status, install count ranges (e.g. "10k+ orgs"), review count and average, Agentforce-specific certifications, reviewer community badges (MVP, Ranger, Top Reviewer).
+- **Do not lump this rating with G2/Capterra in the score.** Record it under the Integration & Technical and Customer Evidence dimensions as Salesforce-ecosystem corroboration. Vendor-curated marketplaces have structural bias (vendors can solicit reviews from customers, Salesforce controls what gets listed).
+- **Data-quality filters (mandatory before computing any average):**
+  - Require **n ≥ 10 reviews** before taking the star average seriously. Below that, report the count but ignore the number.
+  - Strip reviews whose body matches known injection payloads (`{{...constructor...}}`, `javascript:`, `<script`, `alert(`, `prompt(`). Fresh agent listings are being used as XSS probe targets — observed in the field as of 2026.
+  - Discount reviews missing reviewer job title and company (common on newer Agentforce listings) — they cannot be cross-referenced to a company-size or role pattern.
+- **Strong trust signals to surface regardless of review count:** Passed Security Review (T1 — Salesforce-audited), Crest/Summit Partner tier, and multi-year listing history. These carry more weight than the star rating on thin-review listings.
+- **Tier:** Security Review status is **T1** (independently audited). Star ratings and install counts are **T2** (vendor-curated marketplace data).
+
 **Analyst Reports (Gartner, Forrester, IDC, category-specific)**
 Extract: placement in relevant evaluations if applicable, analyst commentary on vendor strengths and cautions, competitive context.
 
@@ -430,7 +442,7 @@ Every factual claim from passive research must be tagged with its source reliabi
 
 | Tier | Label | Description | Examples |
 |------|-------|-------------|----------|
-| T1 | **Verified** | Audited, officially filed, or independently confirmed by multiple authoritative sources | SEC filings, audited financials, SOC 2 reports confirmed on trust pages, G2 review counts |
+| T1 | **Verified** | Audited, officially filed, or independently confirmed by multiple authoritative sources | SEC filings, audited financials, SOC 2 reports confirmed on trust pages, G2 review counts, Salesforce AppExchange Security Review certification |
 | T2 | **Vendor-published** | Stated by the vendor on their own properties but not independently audited | Vendor website claims, press releases, case study metrics, vendor blog posts |
 | T3 | **Self-reported / unaudited** | Data submitted by the vendor (or founder) to a third-party aggregator with no independent verification | Latka (founder interviews), Crunchbase self-reported metrics, Tracxn estimates, PitchBook unconfirmed data, AngelList profiles |
 | T4 | **Estimated / inferred** | Agent's own estimate based on indirect signals | Headcount inferred from LinkedIn, revenue estimated from category benchmarks, team size from job posting volume |
@@ -830,6 +842,7 @@ The skill runs in any Claude environment, but Company Agent interaction requires
 **Recommendation:** Run this skill in Claude Code or Cowork to get the full benefit of Company Agent interaction. In Claude.ai, the skill still runs completely -- but vendors with a Company Agent will be flagged as State 4 (detected, not reachable) and evaluated on passive research only, which produces a lower-confidence output.
 
 ### Changelog
+- v3.3 -- Salesforce AgentExchange / AppExchange added as a conditional passive-research source (§7): pulled only when the buyer's stack is Salesforce-centric, treated as an ecosystem-fit signal (Integration & Technical, Customer Evidence) rather than an independent review source; mandatory data-quality filters (n ≥ 10 reviews, strip XSS/template-injection payloads from review bodies, discount reviews missing reviewer job title/company); Salesforce AppExchange Security Review certification added as a T1-Verified source in §7.1
 - v3.2 -- Source Reliability Classification (7.1): all passive research data now tagged with reliability tiers (T1-Verified through T4-Estimated); self-reported/unaudited sources (Latka, Crunchbase, Tracxn) explicitly flagged with caveats; prevents presenting directional data as confirmed facts; Evidence Completeness table updated to include source tier per dimension
 - v3.1 -- Domain-Expert Discovery Questions (5.3): agent surfaces 2-4 category-specific questions after category confirmation that demonstrate domain expertise and uncover hidden requirements the buyer didn't know to mention; Demo Prep Kit added to memo output — 3-5 vendor-specific questions for the buyer to ask in live demos, derived from evaluation gaps and unverified claims
 - v3.0 -- Evidence transparency: added Evidence Completeness tracking (8.6), Claims vs. Evidence verification (8.7), "What Would Change With Better Evidence" section in comparative output; pricing always scored with category benchmarks (8.3); adversarial due diligence questions added (6.5); vendor answer validation with rephrase-and-retry (6.4); Hidden Risks section in memos; TL;DR as first output artifact; comparative summary promoted to primary output; reusable Buyer Context Snapshot (4.5) for boundary profile and category calibration persistence; memo restructured to embed evidence sourcing context naturally in the Executive Summary rather than as a highlighted status block

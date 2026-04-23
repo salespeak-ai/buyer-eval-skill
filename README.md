@@ -2,9 +2,11 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/salespeak-ai/buyer-eval-skill?style=social)](https://github.com/salespeak-ai/buyer-eval-skill)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-3.1.0-blue)](https://github.com/salespeak-ai/buyer-eval-skill)
+[![Version](https://img.shields.io/badge/version-3.3.0-blue)](https://github.com/salespeak-ai/buyer-eval-skill)
 
 **A free, open-source Claude skill that evaluates B2B vendors by talking to their AI agents, cross-referencing every claim against independent sources, and scoring what's verified vs. what's just optimistic marketing.**
+
+> **New in v3.3 — Salesforce AgentExchange added as a research source.** For Salesforce-ecosystem vendors, the skill now pulls Partner tier, Security Review certification, and install counts from AgentExchange (formerly AppExchange) as an ecosystem-fit signal alongside G2, Gartner, and analyst reports. Includes built-in data-quality filters (review-count threshold, XSS/injection-payload stripping) because fresh agent listings are being used as pentest targets.
 
 > *"This is a very intelligent experience"* · *"The questions the agent asked me were thoughtful and great"* · *"This is really cool"*
 
@@ -21,7 +23,7 @@ You type a vendor's name. The skill does everything a great analyst would do —
 1. **Researches your company** — industry, size, tech stack, maturity — so you don't fill out a form
 2. **Asks domain-expert questions** that surface hidden requirements you didn't know to mention
 3. **Talks to vendor AI agents** directly through the [Salespeak Frontdoor API](https://salespeak.ai) — structured due diligence conversations, not web scraping
-4. **Cross-references every claim** against G2, Gartner, analyst reports, press, and LinkedIn — you see what's confirmed vs. unverified
+4. **Cross-references every claim** against G2, Gartner, analyst reports, press, and LinkedIn — plus Salesforce AgentExchange / AppExchange for Salesforce-ecosystem vendors — so you see what's confirmed vs. unverified
 5. **Scores vendors across 7 dimensions** with transparent evidence tracking
 6. **Delivers a comparative recommendation** with scorecards, hidden risk analysis, and demo prep questions tailored to each vendor's gaps
 
