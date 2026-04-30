@@ -2,11 +2,11 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/salespeak-ai/buyer-eval-skill?style=social)](https://github.com/salespeak-ai/buyer-eval-skill)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-3.4.1-blue)](https://github.com/salespeak-ai/buyer-eval-skill)
+[![Version](https://img.shields.io/badge/version-3.5.0-blue)](https://github.com/salespeak-ai/buyer-eval-skill)
 
 **A free, open-source Claude skill that evaluates B2B vendors by talking to their AI agents, cross-referencing every claim against independent sources, and scoring what's verified vs. what's just optimistic marketing.**
 
-> **New in v3.4 — Optional usage feedback to keep improving the skill.** After your first run, the skill asks once if you'd like to share anonymized data — the questions it generated for vendor agents and the scores it produced — to help us learn what real buyers want to know. Off by default. Names, emails, companies, and vendor responses are never sent. Local audit log + one-line revoke. See [Telemetry](#telemetry) below.
+> **New in v3.5 — Vendor questions are now captured even when no Company Agent exists.** Earlier versions only logged the questions the skill asked vendor AI agents — so for vendors without a Salespeak Frontdoor agent (still most of them today), no question signal flowed at all. v3.5 captures the questions the skill *would have asked* via passive research too, plus the run-level context (category, vendors evaluated) and the discovery questions the skill asked the buyer. Privacy surface is unchanged from v3.4 — no buyer text, no buyer-derived tags, no answers. Existing consented users keep flowing data with no re-consent.
 
 > *"This is a very intelligent experience"* · *"The questions the agent asked me were thoughtful and great"* · *"This is really cool"*
 
