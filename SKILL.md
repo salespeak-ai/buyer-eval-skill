@@ -1,6 +1,6 @@
 ---
 name: buyer-eval
-version: 3.3.0
+version: 3.4.0
 description: |
   Structured B2B software vendor evaluation for buyers. Researches your company,
   asks domain-expert questions, engages vendor AI agents via the Salespeak Frontdoor
@@ -80,3 +80,124 @@ echo "$_BEVAL_DIR/EVALUATION.md"
 ```
 
 Read the file at the path printed above using the Read tool. That file contains the complete evaluation methodology — follow it step by step from STEP 1 through STEP 9.
+
+---
+
+## Telemetry (opt-in, off by default)
+
+This skill can send anonymized usage data back to Salespeak so the questions it generates for vendors can keep getting better. **Nothing is ever sent without explicit user consent.** Names, emails, companies, and vendor responses are never sent.
+
+### Initialize telemetry state at run start
+
+Right after loading EVALUATION.md and before STEP 1, run:
+
+```bash
+_BEVAL_DIR=""
+for _D in "$HOME/.claude/skills/buyer-eval-skill" ".claude/skills/buyer-eval-skill"; do
+  [ -d "$_D" ] && _BEVAL_DIR="$_D" && break
+done
+echo "TELEMETRY_STATE=$(python3 "$_BEVAL_DIR/bin/track.py" status --machine)"
+echo "SESSION_ID=$(python3 -c 'import uuid; print(uuid.uuid4())')"
+```
+
+Capture both values. Use them throughout the run.
+
+`TELEMETRY_STATE` will be one of:
+- `consented` — fire each event live as it happens
+- `unasked` — accumulate events in your own working memory; ask for consent at the end
+- `declined` or `locked_off` — do nothing telemetry-related for the entire run
+
+### What to track and when
+
+These five sub-events are the only ones the skill emits. **Do not invent new ones.**
+
+| Sub-event | Fire when | Fields |
+|---|---|---|
+| `skill_started` | Right after capturing TELEMETRY_STATE | `skill_version` (from VERSION file) |
+| `vendor_question` | Each time you POST a question to a Company Agent in STEP 6 | `vendor` (domain), `dimension` (the evaluation dimension this question targets), `question_text` (the exact question sent) |
+| `vendor_scored` | After scoring each dimension for each vendor in STEP 8 | `vendor`, `dimension`, `score` (numeric) |
+| `eval_completed` | Right after delivering the final output in STEP 9 | `vendor_count`, `winner` (vendor domain or `null` if no clear winner) |
+| `eval_aborted` | Only if the user bails before STEP 9 completes | `at_step` (e.g., `"STEP 6"`) |
+
+**Never include**: buyer name, buyer company, buyer email, anything the buyer typed about themselves, vendor response text.
+
+### How to fire events
+
+**If `TELEMETRY_STATE == consented`**: fire each event live via Bash as it happens.
+
+```bash
+python3 "$_BEVAL_DIR/bin/track.py" event vendor_question \
+  --session-id "$SESSION_ID" \
+  --json '{"vendor":"acme.com","dimension":"product_fit","question_text":"How does your X handle Y?"}'
+```
+
+The script silently no-ops on any error and never blocks the skill.
+
+**If `TELEMETRY_STATE == unasked`**: do NOT call `bin/track.py event`. Instead, keep a running list of event objects in your own working memory as the eval proceeds. Each entry is a JSON object like:
+
+```json
+{"sub_event":"vendor_question","vendor":"acme.com","dimension":"product_fit","question_text":"..."}
+```
+
+At the end of STEP 9 (after delivering the full evaluation to the buyer), follow the consent prompt section below.
+
+**If `TELEMETRY_STATE == declined` or `locked_off`**: do nothing telemetry-related. Skip the consent prompt entirely.
+
+### Consent prompt (only when TELEMETRY_STATE was `unasked`)
+
+After STEP 9 output is delivered, print this block verbatim to the user, then use AskUserQuestion to ask the consent question:
+
+```
+─────────────────────────────────────────────────────────────
+✓ Evaluation complete.
+
+Before you go — one question, asked only this once.
+
+Salespeak built this skill to help buyers cut through vendor noise.
+To make it better, we'd love to learn what real buyers ask vendors.
+With your permission, we'd send back anonymized data from this run
+and future runs.
+
+We'd send:
+  • The questions this skill generated for vendor agents
+  • The scores it gave each vendor
+  • A random ID to group your runs together (not linked to you)
+
+We will NEVER send:
+  • Your name, email, or company
+  • Anything you typed about yourself
+  • Vendor responses
+
+Verify it yourself:
+  • Code: bin/track.py (plain Python, no third-party libraries)
+  • Local audit log: ~/.salespeak/buyer-eval.log
+    (every event we send is also written here — read it anytime)
+  • Change your mind: python3 bin/track.py revoke
+  • Delete your data: email omer@salespeak.ai with your user ID
+    (run `python3 bin/track.py show` to see it)
+─────────────────────────────────────────────────────────────
+```
+
+Then use AskUserQuestion:
+- Question: "Help us improve the skill by sharing anonymized usage data from this run?"
+- Options: ["Yes, share anonymized data", "No thanks"]
+
+**If "Yes"**: pass the accumulated event list to `grant`. Build the events JSON as a single-line array (escape carefully — question_text may contain quotes; use Python's `json.dumps` if in doubt). Example:
+
+```bash
+python3 "$_BEVAL_DIR/bin/track.py" grant \
+  --session-id "$SESSION_ID" \
+  --events '[{"sub_event":"skill_started","skill_version":"3.4.0"},{"sub_event":"vendor_question","vendor":"acme.com","dimension":"product_fit","question_text":"..."}]'
+```
+
+Confirm to the user: "Thanks — sharing enabled. Run `python3 bin/track.py revoke` anytime to disable."
+
+**If "No"**: 
+```bash
+python3 "$_BEVAL_DIR/bin/track.py" decline
+```
+Confirm to the user: "Got it — no data shared. We won't ask again."
+
+### Enterprise note
+
+If a system administrator has set `BUYER_EVAL_NO_TELEMETRY=1` or deployed `/etc/salespeak/buyer-eval.json` with `{"locked":true,"consent":false}`, `TELEMETRY_STATE` will be `locked_off` and no consent prompt is shown. This is the documented escape hatch for enterprise IT.

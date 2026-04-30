@@ -2,11 +2,11 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/salespeak-ai/buyer-eval-skill?style=social)](https://github.com/salespeak-ai/buyer-eval-skill)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-3.3.0-blue)](https://github.com/salespeak-ai/buyer-eval-skill)
+[![Version](https://img.shields.io/badge/version-3.4.0-blue)](https://github.com/salespeak-ai/buyer-eval-skill)
 
 **A free, open-source Claude skill that evaluates B2B vendors by talking to their AI agents, cross-referencing every claim against independent sources, and scoring what's verified vs. what's just optimistic marketing.**
 
-> **New in v3.3 — Salesforce AgentExchange added as a research source.** For Salesforce-ecosystem vendors, the skill now pulls Partner tier, Security Review certification, and install counts from AgentExchange (formerly AppExchange) as an ecosystem-fit signal alongside G2, Gartner, and analyst reports. Includes built-in data-quality filters (review-count threshold, XSS/injection-payload stripping) because fresh agent listings are being used as pentest targets.
+> **New in v3.4 — Optional usage feedback to keep improving the skill.** After your first run, the skill asks once if you'd like to share anonymized data — the questions it generated for vendor agents and the scores it produced — to help us learn what real buyers want to know. Off by default. Names, emails, companies, and vendor responses are never sent. Local audit log + one-line revoke. See [Telemetry](#telemetry) below.
 
 > *"This is a very intelligent experience"* · *"The questions the agent asked me were thoughtful and great"* · *"This is really cool"*
 
@@ -158,6 +158,64 @@ Best experience is in **Claude Code** where the skill can make POST requests to 
 ## Auto-updates
 
 Every time you invoke the skill, it checks for a newer version on GitHub (cached, checks at most once every 6 hours). If an update is available, it asks before updating.
+
+## Telemetry
+
+**Off by default. Opt-in. Asked once, after your first run, never again.**
+
+The skill can send anonymized usage data back to Salespeak so we can learn what buyers actually ask vendors and keep improving the skill. You see the consent prompt at the end of your first evaluation — answer yes or no, and we never ask again either way.
+
+### What gets sent (only after you say yes)
+
+- The questions this skill generated for vendor AI agents
+- The scores it produced for each vendor on each dimension
+- A randomly generated user ID, generated on consent, that lets us group your runs together
+
+### What never gets sent
+
+- Your name, email, or company
+- Anything you typed about yourself
+- Vendor responses (only the scores derived from them)
+
+### Verify it yourself
+
+- **Code**: [`bin/track.py`](bin/track.py) — plain Python, no third-party libraries
+- **Local audit log**: every event sent is also written to `~/.salespeak/buyer-eval.log` — you can `cat` it anytime to see exactly what left your machine
+- **Status**: `python3 ~/.claude/skills/buyer-eval-skill/bin/track.py status`
+- **Show your user ID**: `python3 ~/.claude/skills/buyer-eval-skill/bin/track.py show`
+
+### Change your mind
+
+```bash
+python3 ~/.claude/skills/buyer-eval-skill/bin/track.py revoke
+```
+
+Disables telemetry immediately. No further data is sent.
+
+### Delete your data
+
+Email **omer@salespeak.ai** with your user ID (run the `show` command above to find it). We confirm deletion within 30 days.
+
+### For IT administrators
+
+Two ways to disable telemetry organization-wide. Either takes precedence over individual user consent.
+
+**Environment variable** (per-process or org-wide via your shell rc / MDM):
+```bash
+export BUYER_EVAL_NO_TELEMETRY=1
+```
+
+**System-wide config** (deploy via MDM / Jamf / Ansible):
+```bash
+sudo mkdir -p /etc/salespeak
+sudo tee /etc/salespeak/buyer-eval.json > /dev/null <<'EOF'
+{"locked": true, "consent": false}
+EOF
+```
+
+When either is set, the skill's telemetry state becomes `locked_off`, no consent prompt is shown to users, and no events can be sent regardless of any user-level configuration.
+
+The endpoint is `https://22i9zfydr3.execute-api.us-west-2.amazonaws.com/prod/event_stream` if you'd rather block at the firewall — that's also fine; the skill is designed to silently no-op on network failure.
 
 ## Feedback & Requests
 
