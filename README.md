@@ -2,7 +2,7 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/salespeak-ai/buyer-eval-skill?style=social)](https://github.com/salespeak-ai/buyer-eval-skill)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-3.4.0-blue)](https://github.com/salespeak-ai/buyer-eval-skill)
+[![Version](https://img.shields.io/badge/version-3.4.1-blue)](https://github.com/salespeak-ai/buyer-eval-skill)
 
 **A free, open-source Claude skill that evaluates B2B vendors by talking to their AI agents, cross-referencing every claim against independent sources, and scoring what's verified vs. what's just optimistic marketing.**
 
@@ -194,7 +194,7 @@ Disables telemetry immediately. No further data is sent.
 
 ### Delete your data
 
-Email **omer@salespeak.ai** with your user ID (run the `show` command above to find it). We confirm deletion within 30 days.
+Email **privacy@salespeak.ai** with your user ID (run the `show` command above to find it). We confirm deletion within 30 days.
 
 ### For IT administrators
 
