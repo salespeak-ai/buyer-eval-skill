@@ -1,12 +1,12 @@
 ---
-name: buyer-eval
-version: 3.5.0
+name: buyer-eval-skill
+version: 4.0.0
 description: |
-  Structured B2B software vendor evaluation for buyers. Researches your company,
-  asks domain-expert questions, engages vendor AI agents via the Salespeak Frontdoor
-  API, scores vendors across 7 dimensions, and produces a comparative recommendation
-  with evidence transparency. Use when asked to evaluate, compare, or research B2B
-  software vendors.
+  An AI analyst for buying B2B software. Investigates what vendors claim, checks
+  the evidence, surfaces contradictions and unanswered questions, and produces a
+  shareable Decision Brief with the questions to ask before you buy. Quick Eval by
+  default; Deep Eval on request. Use when asked to evaluate, compare, vet, or
+  research B2B software vendors.
 allowed-tools:
   - Bash
   - Read
@@ -16,207 +16,138 @@ allowed-tools:
   - AskUserQuestion
 ---
 
-## Preamble (run first, every time)
+# Buyer Eval
+
+This file is the control plane. It decides the mode, loads only the references
+that mode needs, and runs the shared start and finish steps. Methodology lives in
+`references/`.
+
+The experience this skill must deliver:
+
+> **Show me what these vendors claim, what the evidence actually supports, what
+> conflicts, and what I still need to find out before buying.**
+
+If an output reads like a generic AI vendor comparison, it is not done.
+
+---
+
+## 1. Preamble (run first, every time)
 
 ```bash
-# Detect skill directory
-_BEVAL_DIR=""
-for _D in "$HOME/.claude/skills/buyer-eval-skill" ".claude/skills/buyer-eval-skill"; do
-  [ -d "$_D" ] && _BEVAL_DIR="$_D" && break
-done
-
+_BEVAL_DIR="${BUYER_EVAL_DIR:-}"
+if [ -z "$_BEVAL_DIR" ]; then
+  for _D in "$HOME/.claude/skills/buyer-eval-skill" ".claude/skills/buyer-eval-skill"; do
+    [ -d "$_D" ] && _BEVAL_DIR="$_D" && break
+  done
+fi
 if [ -z "$_BEVAL_DIR" ]; then
   echo "ERROR: buyer-eval-skill not found. Install: git clone https://github.com/salespeak-ai/buyer-eval-skill ~/.claude/skills/buyer-eval-skill"
   exit 1
 fi
-
-# Check for updates
+echo "BEVAL_DIR=$_BEVAL_DIR"
 _UPD=$("$_BEVAL_DIR/bin/update-check" 2>/dev/null || true)
-[ -n "$_UPD" ] && echo "$_UPD" || echo "UP_TO_DATE $(cat "$_BEVAL_DIR/VERSION" 2>/dev/null | tr -d '[:space:]')"
-```
-
-**If output shows `UPGRADE_AVAILABLE <old> <new>`:**
-
-Use AskUserQuestion to ask the buyer:
-- Question: "A newer version of the buyer evaluation skill is available (v{old} → v{new}). Update now?"
-- Options: ["Yes, update now", "Not now — continue with current version"]
-
-**If "Yes, update now":**
-```bash
-_BEVAL_DIR=""
-for _D in "$HOME/.claude/skills/buyer-eval-skill" ".claude/skills/buyer-eval-skill"; do
-  [ -d "$_D" ] && _BEVAL_DIR="$_D" && break
-done
-
-if [ -d "$_BEVAL_DIR/.git" ]; then
-  cd "$_BEVAL_DIR" && git pull origin main && echo "UPDATED to $(cat VERSION | tr -d '[:space:]')"
-else
-  _TMP=$(mktemp -d)
-  git clone --depth 1 https://github.com/salespeak-ai/buyer-eval-skill.git "$_TMP/buyer-eval-skill"
-  mv "$_BEVAL_DIR" "$_BEVAL_DIR.bak"
-  mv "$_TMP/buyer-eval-skill" "$_BEVAL_DIR"
-  rm -rf "$_BEVAL_DIR.bak" "$_TMP"
-  echo "UPDATED to $(cat "$_BEVAL_DIR/VERSION" | tr -d '[:space:]')"
-fi
-```
-Tell the user the version was updated, then **re-read the EVALUATION.md file** from the updated directory and proceed with the skill.
-
-**If "Not now":** Continue with the current version.
-
-**If output shows `UP_TO_DATE`:** Continue silently.
-
----
-
-## Load the evaluation skill
-
-After the preamble, read the full evaluation methodology:
-
-```bash
-_BEVAL_DIR=""
-for _D in "$HOME/.claude/skills/buyer-eval-skill" ".claude/skills/buyer-eval-skill"; do
-  [ -d "$_D" ] && _BEVAL_DIR="$_D" && break
-done
-echo "$_BEVAL_DIR/EVALUATION.md"
-```
-
-Read the file at the path printed above using the Read tool. That file contains the complete evaluation methodology — follow it step by step from STEP 1 through STEP 9.
-
----
-
-## Telemetry (opt-in, off by default)
-
-This skill can send anonymized usage data back to Salespeak so the questions it generates for vendors can keep getting better. **Nothing is ever sent without explicit user consent.** Names, emails, companies, and vendor responses are never sent.
-
-### Initialize telemetry state at run start
-
-Right after loading EVALUATION.md and before STEP 1, run:
-
-```bash
-_BEVAL_DIR=""
-for _D in "$HOME/.claude/skills/buyer-eval-skill" ".claude/skills/buyer-eval-skill"; do
-  [ -d "$_D" ] && _BEVAL_DIR="$_D" && break
-done
-echo "TELEMETRY_STATE=$(python3 "$_BEVAL_DIR/bin/track.py" status --machine)"
+[ -n "$_UPD" ] && echo "$_UPD" || echo "UP_TO_DATE $(tr -d '[:space:]' < "$_BEVAL_DIR/VERSION")"
+echo "PROFILE=$(python3 "$_BEVAL_DIR/bin/profile.py" show --machine 2>/dev/null || echo unavailable)"
+echo "TELEMETRY_STATE=$(python3 "$_BEVAL_DIR/bin/track.py" status --machine 2>/dev/null || echo locked_off)"
 echo "SESSION_ID=$(python3 -c 'import uuid; print(uuid.uuid4())')"
 ```
 
-Capture both values. Use them throughout the run.
+Keep `BEVAL_DIR`, `PROFILE`, `TELEMETRY_STATE` and `SESSION_ID` for the whole run.
+Every later bash block starts with `_BEVAL_DIR="<BEVAL_DIR value>"`.
 
-`TELEMETRY_STATE` will be one of:
-- `consented` — fire each event live as it happens
-- `unasked` — accumulate events in your own working memory; ask for consent at the end
-- `declined` or `locked_off` — do nothing telemetry-related for the entire run
+**Update available** (`UPGRADE_AVAILABLE <old> <new>`): ask once with
+AskUserQuestion, "A newer version of Buyer Eval is available (v{old} to v{new}).
+Update now?" Options: "Yes, update now" / "Not now". If yes:
 
-### What to track and when
+```bash
+cd "$_BEVAL_DIR" && git pull --ff-only origin main && echo "UPDATED to $(tr -d '[:space:]' < VERSION)"
+```
 
-These seven sub-events are the only ones the skill emits. **Do not invent new ones.**
+If the directory is not a git checkout, tell the buyer to re-run the install
+command from the README and continue on the current version. After a successful
+update, re-read this SKILL.md before continuing.
 
-| Sub-event | Fire when | Fields |
+**Telemetry** is opt-in and never blocks the evaluation. Read
+`references/telemetry.md` now only if `TELEMETRY_STATE` is `consented` or
+`unasked`. If it is `declined` or `locked_off`, skip everything telemetry-related.
+
+---
+
+## 2. Choose the mode
+
+| Mode | When | Load |
 |---|---|---|
-| `skill_started` | Right after capturing TELEMETRY_STATE | `skill_version` (from VERSION file) |
-| `eval_context` | Once, right after STEP 5.1 (category confirmed) | `category` (skill-inferred slug), `vendor_count` (int), `vendors` (array of domains), `company_agents_found` (int — count of vendors with `enabled:true` from Frontdoor discover), `evaluation_path` (`"company_agent_engaged"` \| `"passive_research_only"` \| `"mixed"`) |
-| `discovery_question_asked` | After the buyer answers a discovery question. **Fire for STEP 2 (why-now) and for each STEP 5.3 domain-expert question.** | `step` (`"STEP_2"` \| `"STEP_5_3"`), `category` (slug, or `null` for STEP_2), `topic` (short slug you choose, e.g. `"why_now"`, `"high_touch_vs_low_touch"`, `"product_analytics_stack"`), `question_text` (the exact question you asked the buyer) |
-| `vendor_question` | **For every (vendor, dimension) pair**, fire one or more events with the question(s) you formulate per the §6.5 question bank — regardless of whether a Company Agent exists. | `vendor` (domain), `category` (slug), `dimension` (the evaluation dimension), `question_text` (the specific question), `delivery_method` (`"asked_via_company_agent"` if actually POSTed via Frontdoor and got an answer, `"would_have_asked"` if no Company Agent existed, `"connection_failed"` if Frontdoor errored) |
-| `vendor_scored` | After scoring each dimension for each vendor in STEP 8 | `vendor`, `dimension`, `score` (numeric, 1-5; do NOT fire for `[GAP]` dimensions) |
-| `eval_completed` | Right after delivering the final output in STEP 9 | `vendor_count`, `winner` (vendor domain or `null` if no clear winner) |
-| `eval_aborted` | Only if the user bails before STEP 9 completes | `at_step` (e.g., `"STEP 6"`) |
+| **Quick Eval** (default) | Every run, unless the buyer explicitly asks for deep, full, or comprehensive diligence | `references/quick-eval.md` |
+| **Deep Eval** | Buyer asks for it up front, or asks to go deeper after a Quick Eval | `references/deep-eval.md` |
 
-**Never include**: buyer name, buyer company, buyer email, anything the buyer typed about themselves, the buyer's *answers* to discovery questions, vendor response text.
+Both modes also load `references/evidence-model.md`,
+`references/report-format.md` and `references/frontdoor-api.md`. Deep Eval also
+loads `references/scoring.md`. Do not load files a mode does not need.
 
-### Step-level firing map
+Do not ask the buyer which mode they want. Start Quick. Offer Deep at the end.
 
-Use this as the canonical map between EVALUATION.md steps and event emissions. Fire events at these exact moments — no earlier, no later.
+---
 
-| EVALUATION.md step | Events to fire | Notes |
-|---|---|---|
-| Right after capturing TELEMETRY_STATE (before STEP 1) | `skill_started` | One event |
-| **STEP 2** — buyer answers the why-now question | `discovery_question_asked` (`step:"STEP_2"`, `topic:"why_now"`) | One event. `category` is `null` here. `question_text` is the canonical why-now question. |
-| **STEP 5.1** — category confirmed | `eval_context` | One event. `company_agents_found` and `evaluation_path` may not be known yet — use `null` for `company_agents_found` here and update `evaluation_path` later if needed; or fire `eval_context` AFTER STEP 6.1 discover calls so all fields are populated (preferred — fire it after discover so the path is known). |
-| **STEP 5.3** — each domain-expert question asked | `discovery_question_asked` (`step:"STEP_5_3"`, `topic:<your slug>`) | 0-4 events depending on how many questions you ask. Slugs you choose should be short and category-relevant (e.g. `"high_touch_vs_low_touch"`, `"product_analytics_stack"`, `"multi_entity_consolidation"`). |
-| **STEP 6.5** — for every (vendor, dimension) pair | `vendor_question` | **One or more events per pair, regardless of Company Agent availability.** Walk the §6.5 question bank, formulate the specific question(s) you'd ask the vendor for each dimension (Product Fit, Integration & Technical, Pricing & Commercial, Security & Compliance, Vendor Credibility, Customer Evidence, Support & Success). For each, fire `vendor_question` with the right `delivery_method`. |
-| **STEP 8** — each numeric score assigned | `vendor_scored` | One event per (vendor, dimension) that gets a numeric 1-5 score. **Do not fire for `[GAP]` dimensions.** |
-| **STEP 9** — final output delivered | `eval_completed` | One event |
-| User abandons before STEP 9 | `eval_aborted` | Only if applicable |
+## 3. Saved buyer context
 
-**Critical change in v3.5**: `vendor_question` no longer depends on Company Agent availability. Even when all vendors return `enabled: false` from Frontdoor discover, you must still walk the question bank, formulate questions you would have asked, and fire `vendor_question` events with `delivery_method: "would_have_asked"`. The signal is *what buyers want to know*, not *whether the vendor's bot answered*.
+`PROFILE` is either `none`, `unavailable` (no writable home directory, for
+example claude.ai), or a one-line JSON object with the buyer's saved context.
 
-### How to fire events
+- **Saved profile exists:** use it silently. Tell the buyer in one line what you
+  are using ("Using your saved context: Acme, ~300 people, HubSpot + Snowflake,
+  SOC 2 required. Say 'update my context' to change it.") and keep going. Do not
+  wait for a reply.
+- **None:** proceed without it. At the end of the run, save what the buyer told
+  you (see section 5).
+- **Unavailable:** never claim that context will be remembered.
 
-**If `TELEMETRY_STATE == consented`**: fire each event live via Bash as it happens.
+The profile holds only reusable buying context. See `bin/profile.py` for the
+exact fields. Never store personal names, emails, vendor pricing quotes, or
+documents the buyer shared.
 
-```bash
-python3 "$_BEVAL_DIR/bin/track.py" event vendor_question \
-  --session-id "$SESSION_ID" \
-  --json '{"vendor":"acme.com","category":"customer_success_platform","dimension":"product_fit","question_text":"How does your X handle Y?","delivery_method":"would_have_asked"}'
-```
+---
 
-The script silently no-ops on any error and never blocks the skill.
+## 4. Run the mode
 
-**If `TELEMETRY_STATE == unasked`**: do NOT call `bin/track.py event`. Instead, keep a running list of event objects in your own working memory as the eval proceeds. Each entry is a JSON object like:
+Follow the loaded mode file step by step. Both modes share these rules:
 
-```json
-{"sub_event":"vendor_question","vendor":"acme.com","category":"customer_success_platform","dimension":"product_fit","question_text":"...","delivery_method":"would_have_asked"}
-```
+1. **Evidence first.** The Claims vs. Evidence table is the centerpiece. Every
+   material conclusion traces to classified claims (`references/evidence-model.md`).
+2. **Vendor AI agents are first-party sources.** Answers from any vendor-operated
+   agent, including a Salespeak Company Agent reached through the Frontdoor API,
+   are vendor claims. They add specificity and let you ask follow-ups. They never
+   raise a score, an evidence confidence, or a verdict on their own.
+3. **Label what you inferred.** Criteria the buyer did not state are shown as
+   inferred.
+4. **Challenge before you conclude.** Run the challenge pass in
+   `references/evidence-model.md` before writing output.
+5. **No action without approval.** Never contact vendors by email, book demos,
+   start trials, or commit to anything. Asking a vendor's public AI agent
+   questions through the Frontdoor API is research, not contact.
 
-At the end of STEP 9 (after delivering the full evaluation to the buyer), follow the consent prompt section below.
+---
 
-**If `TELEMETRY_STATE == declined` or `locked_off`**: do nothing telemetry-related. Skip the consent prompt entirely.
+## 5. Finish (both modes)
 
-### Consent prompt (only when TELEMETRY_STATE was `unasked`)
-
-After STEP 9 output is delivered, print this block verbatim to the user, then use AskUserQuestion to ask the consent question:
-
-```
-─────────────────────────────────────────────────────────────
-✓ Evaluation complete.
-
-Before you go — one question, asked only this once.
-
-Salespeak built this skill to help buyers cut through vendor noise.
-To make it better, we'd love to learn what real buyers ask vendors.
-With your permission, we'd send back anonymized data from this run
-and future runs.
-
-We'd send:
-  • The questions this skill generated for vendor agents
-  • The scores it gave each vendor
-  • A random ID to group your runs together (not linked to you)
-
-We will NEVER send:
-  • Your name, email, or company
-  • Anything you typed about yourself
-  • Vendor responses
-
-Verify it yourself:
-  • Code: bin/track.py (plain Python, no third-party libraries)
-  • Local audit log: ~/.salespeak/buyer-eval.log
-    (every event we send is also written here — read it anytime)
-  • Change your mind: python3 bin/track.py revoke
-  • Delete your data: email privacy@salespeak.ai with your user ID
-    (run `python3 bin/track.py show` to see it)
-─────────────────────────────────────────────────────────────
-```
-
-Then use AskUserQuestion:
-- Question: "Help us improve the skill by sharing anonymized usage data from this run?"
-- Options: ["Yes, share anonymized data", "No thanks"]
-
-**If "Yes"**: pass the accumulated event list to `grant`. Build the events JSON as a single-line array (escape carefully — question_text may contain quotes; use Python's `json.dumps` if in doubt). Example:
-
-```bash
-python3 "$_BEVAL_DIR/bin/track.py" grant \
-  --session-id "$SESSION_ID" \
-  --events '[{"sub_event":"skill_started","skill_version":"3.5.0"},{"sub_event":"vendor_question","vendor":"acme.com","category":"customer_success_platform","dimension":"product_fit","question_text":"...","delivery_method":"would_have_asked"}]'
-```
-
-Confirm to the user: "Thanks — sharing enabled. Run `python3 bin/track.py revoke` anytime to disable."
-
-**If "No"**: 
-```bash
-python3 "$_BEVAL_DIR/bin/track.py" decline
-```
-Confirm to the user: "Got it — no data shared. We won't ask again."
-
-### Enterprise note
-
-If a system administrator has set `BUYER_EVAL_NO_TELEMETRY=1` or deployed `/etc/salespeak/buyer-eval.json` with `{"locked":true,"consent":false}`, `TELEMETRY_STATE` will be `locked_off` and no consent prompt is shown. This is the documented escape hatch for enterprise IT.
+1. **Deliver the brief in chat** in the order set by `references/report-format.md`.
+2. **Write the HTML Decision Brief.** Write the report JSON to a temp file, then:
+   ```bash
+   python3 "$_BEVAL_DIR/bin/render_report.py" /path/to/report.json
+   ```
+   The script prints the path of the HTML file (default `~/buyer-eval-reports/`).
+   Give the buyer that path and say it is a single file they can open, print, or
+   forward. If the environment cannot run Python, skip the HTML and say so.
+3. **Save buyer context** (only if `PROFILE` was not `unavailable` and the buyer
+   stated something new and reusable):
+   ```bash
+   python3 "$_BEVAL_DIR/bin/profile.py" save --json '{"company_name":"...","hard_constraints":["..."]}'
+   ```
+   Tell the buyer in one line what was saved and that `profile.py clear` deletes it.
+4. **Offer the next step** in one line. After Quick Eval: "Want a Deep Eval?
+   It adds requirements discovery, weighted scoring, commercial, security and
+   company-risk research, and longer vendor-agent conversations." After Deep
+   Eval: offer to update the brief when the buyer has demo notes, proposals, or
+   pricing.
+5. **Telemetry**, only as described in `references/telemetry.md`. The consent
+   question is asked at most once, ever, and only after the evaluation has been
+   delivered.
