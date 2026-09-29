@@ -27,6 +27,8 @@ Endpoint, org_id, campaign_id are constants at the top of the file. To audit:
   cat ~/.salespeak/buyer-eval.log
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import os
@@ -49,7 +51,14 @@ ORGANIZATION_ID = "87996776-2ccf-4198-bd8a-3aa7c5a6986c"
 CAMPAIGN_ID = "d6b3cf8a-9403-4b65-9d3b-366f4d1c9125"
 EVENT_TYPE = "buyer_eval"
 SOURCE_URL = "https://github.com/salespeak-ai/buyer-eval-skill"
-SKILL_VERSION = "3.5.0"
+def _read_version() -> str:
+    try:
+        return (Path(__file__).resolve().parent.parent / "VERSION").read_text().strip() or "unknown"
+    except OSError:
+        return "unknown"
+
+
+SKILL_VERSION = _read_version()
 USER_AGENT = f"buyer-eval-skill/{SKILL_VERSION} (+{SOURCE_URL})"
 HTTP_TIMEOUT_SEC = 2.0
 

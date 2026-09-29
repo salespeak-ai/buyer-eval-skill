@@ -10,6 +10,5 @@ promo/node_modules/
 promo/capture.mjs
 promo/split-screen.html
 promo/package*.json
-promo/buyer-eval-demo.mp4
 __pycache__/
 *.pyc

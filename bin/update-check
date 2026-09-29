@@ -2,7 +2,7 @@
 # buyer-eval update-check — checks if a newer version is available on GitHub.
 #
 # Output (one line, or nothing):
-#   UPGRADE_AVAILABLE <old> <new>   — remote VERSION differs from local
+#   UPGRADE_AVAILABLE <old> <new>   — remote VERSION is newer than local
 #   (nothing)                       — up to date or check skipped
 #
 # Usage: called from the SKILL.md preamble at skill invocation time.
@@ -13,6 +13,11 @@ STATE_DIR="${BUYER_EVAL_STATE_DIR:-$HOME/.buyer-eval}"
 CACHE_FILE="$STATE_DIR/last-update-check"
 VERSION_FILE="$SKILL_DIR/VERSION"
 REMOTE_URL="${BUYER_EVAL_REMOTE_URL:-https://raw.githubusercontent.com/salespeak-ai/buyer-eval-skill/main/VERSION}"
+
+# True if $1 is a strictly newer dotted version than $2
+version_gt() {
+  [ "$1" != "$2" ] && [ "$(printf '%s\n%s\n' "$1" "$2" | sort -t. -k1,1n -k2,2n -k3,3n | tail -n1)" = "$1" ]
+}
 
 # Cache: only check once every 6 hours
 CACHE_TTL=21600
@@ -28,7 +33,7 @@ if [ -f "$CACHE_FILE" ]; then
   NOW="$(date +%s)"
   AGE=$(( NOW - CACHED_TIME ))
   if [ "$AGE" -lt "$CACHE_TTL" ] && [ -n "$CACHED_REMOTE" ]; then
-    if [ "$CACHED_REMOTE" != "$LOCAL_VER" ]; then
+    if version_gt "$CACHED_REMOTE" "$LOCAL_VER"; then
       echo "UPGRADE_AVAILABLE $LOCAL_VER $CACHED_REMOTE"
     fi
     exit 0
@@ -47,6 +52,6 @@ fi
 echo "$(date +%s) $REMOTE_VER" > "$CACHE_FILE"
 
 # Compare
-if [ "$REMOTE_VER" != "$LOCAL_VER" ]; then
+if version_gt "$REMOTE_VER" "$LOCAL_VER"; then
   echo "UPGRADE_AVAILABLE $LOCAL_VER $REMOTE_VER"
 fi

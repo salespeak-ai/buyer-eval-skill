@@ -1,0 +1,11 @@
+{
+  "title": "Buyer Eval. An AI analyst for buying B2B software.",
+  "terminal": "Name the vendors you're considering, and what matters to you. It frames your criteria, checks for vendor AI agents, collects every material claim, and tests each one against the evidence.",
+  "found": "Minutes later, you see what it found: what's verified, what's qualified, what's contradicted, and what nobody could answer.",
+  "claims": "The centerpiece is claims versus evidence. Every claim shows where it came from, and what supports it. Here, the vendor's own AI agent promised a six-week rollout. Two customer accounts describe four to six months.",
+  "neutral": "Vendor agents are sources, not judges. Having one never improves a vendor's score.",
+  "unanswered": "It tells you what's still unknown, why it matters, what was checked, and who should answer.",
+  "demo": "And it gives you the questions to ask in your next demo, with what to listen for.",
+  "brief": "Everything lands in one Decision Brief you can forward to your CFO, your security team, and your VP.",
+  "end": "Buyer Eval. Free and open source. Know what's true before you buy."
+}
