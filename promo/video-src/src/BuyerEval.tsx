@@ -1,6 +1,8 @@
 import React from 'react';
+import voiceDurations from './voice-durations.json';
 import {
   AbsoluteFill,
+  Audio,
   Easing,
   Img,
   Sequence,
@@ -34,19 +36,36 @@ const STATUS_COLORS: Record<Status, string[]> = {
   Unknown: C.none,
 };
 
-// Scene timing (30 fps)
-export const SCENES = {
-  title: [0, 90],
-  terminal: [90, 330],
-  found: [420, 210],
-  claims: [630, 360],
-  neutral: [990, 150],
-  unanswered: [1140, 210],
-  demo: [1350, 180],
-  brief: [1530, 240],
-  end: [1770, 150],
+// Scene timing (30 fps). Each scene lasts at least its visual minimum and at
+// least as long as its narration plus a short lead-in and tail.
+const MIN_FRAMES = {
+  title: 90,
+  terminal: 330,
+  found: 210,
+  claims: 360,
+  neutral: 150,
+  unanswered: 210,
+  demo: 180,
+  brief: 240,
+  end: 150,
 } as const;
-export const TOTAL = 1920;
+type SceneKey = keyof typeof MIN_FRAMES;
+export const VOICE_LEAD = 8;
+const ORDER = Object.keys(MIN_FRAMES) as SceneKey[];
+const buildScenes = () => {
+  const out = {} as Record<SceneKey, readonly [number, number]>;
+  let at = 0;
+  for (const k of ORDER) {
+    const voice = (voiceDurations as Record<string, number>)[k] ?? 0;
+    const dur = Math.max(MIN_FRAMES[k], Math.ceil(voice * 30) + VOICE_LEAD + 22);
+    out[k] = [at, dur] as const;
+    at += dur;
+  }
+  return {scenes: out, total: at};
+};
+const built = buildScenes();
+export const SCENES = built.scenes;
+export const TOTAL = built.total;
 
 const fade = (frame: number, dur: number) =>
   Math.min(
@@ -506,14 +525,14 @@ const End: React.FC = () => {
 
 export const BuyerEval: React.FC = () => (
   <AbsoluteFill style={{backgroundColor: '#fff'}}>
-    <Sequence from={SCENES.title[0]} durationInFrames={SCENES.title[1]}><Title /></Sequence>
-    <Sequence from={SCENES.terminal[0]} durationInFrames={SCENES.terminal[1]}><Terminal /></Sequence>
-    <Sequence from={SCENES.found[0]} durationInFrames={SCENES.found[1]}><Found /></Sequence>
-    <Sequence from={SCENES.claims[0]} durationInFrames={SCENES.claims[1]}><Claims /></Sequence>
-    <Sequence from={SCENES.neutral[0]} durationInFrames={SCENES.neutral[1]}><Neutral /></Sequence>
-    <Sequence from={SCENES.unanswered[0]} durationInFrames={SCENES.unanswered[1]}><Unanswered /></Sequence>
-    <Sequence from={SCENES.demo[0]} durationInFrames={SCENES.demo[1]}><Demo /></Sequence>
-    <Sequence from={SCENES.brief[0]} durationInFrames={SCENES.brief[1]}><Brief /></Sequence>
-    <Sequence from={SCENES.end[0]} durationInFrames={SCENES.end[1]}><End /></Sequence>
+    <Sequence from={SCENES.title[0]} durationInFrames={SCENES.title[1]}><Title /><Sequence from={VOICE_LEAD}><Audio src={staticFile('voice/title.mp3')} /></Sequence></Sequence>
+    <Sequence from={SCENES.terminal[0]} durationInFrames={SCENES.terminal[1]}><Terminal /><Sequence from={VOICE_LEAD}><Audio src={staticFile('voice/terminal.mp3')} /></Sequence></Sequence>
+    <Sequence from={SCENES.found[0]} durationInFrames={SCENES.found[1]}><Found /><Sequence from={VOICE_LEAD}><Audio src={staticFile('voice/found.mp3')} /></Sequence></Sequence>
+    <Sequence from={SCENES.claims[0]} durationInFrames={SCENES.claims[1]}><Claims /><Sequence from={VOICE_LEAD}><Audio src={staticFile('voice/claims.mp3')} /></Sequence></Sequence>
+    <Sequence from={SCENES.neutral[0]} durationInFrames={SCENES.neutral[1]}><Neutral /><Sequence from={VOICE_LEAD}><Audio src={staticFile('voice/neutral.mp3')} /></Sequence></Sequence>
+    <Sequence from={SCENES.unanswered[0]} durationInFrames={SCENES.unanswered[1]}><Unanswered /><Sequence from={VOICE_LEAD}><Audio src={staticFile('voice/unanswered.mp3')} /></Sequence></Sequence>
+    <Sequence from={SCENES.demo[0]} durationInFrames={SCENES.demo[1]}><Demo /><Sequence from={VOICE_LEAD}><Audio src={staticFile('voice/demo.mp3')} /></Sequence></Sequence>
+    <Sequence from={SCENES.brief[0]} durationInFrames={SCENES.brief[1]}><Brief /><Sequence from={VOICE_LEAD}><Audio src={staticFile('voice/brief.mp3')} /></Sequence></Sequence>
+    <Sequence from={SCENES.end[0]} durationInFrames={SCENES.end[1]}><End /><Sequence from={VOICE_LEAD}><Audio src={staticFile('voice/end.mp3')} /></Sequence></Sequence>
   </AbsoluteFill>
 );
