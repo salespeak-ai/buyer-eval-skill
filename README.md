@@ -1,7 +1,7 @@
 # Buyer Eval
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-4.0.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.1.0-blue)](CHANGELOG.md)
 
 **An AI analyst for buying B2B software.**
 
@@ -17,8 +17,8 @@ You:  Evaluate Vendor A and Vendor B for customer success. We need deep
 
 A few minutes later:
 
-> **What we found:** 14 claims investigated. 6 verified, 3 qualified,
-> 1 contradicted, 3 unverified, 1 unknown.
+> **What we found:** 8 claims investigated. 3 verified, 2 qualified,
+> 1 contradicted, 1 unverified, 1 unknown.
 >
 > **Most important finding:** Vendor B's "live in 6 weeks" claim is contradicted
 > by two customer accounts describing 4-6 month rollouts.
@@ -37,11 +37,14 @@ A few minutes later:
 
 ## What you get
 
-- **Claims vs. evidence.** Every material vendor claim, where it came from, what
-  supports or contradicts it, and a status: Verified, Qualified, Contradicted,
-  Unverified, or Unknown.
-- **Questions nobody could answer.** What you still need to find out, why it
-  matters, what was checked, and which vendor should answer.
+- **Claims vs. evidence.** Every material vendor claim, where it came from, a
+  status (Verified, Qualified, Contradicted, Unverified, or Unknown), and the
+  **evidence basis** behind it: vendor documentation, independent evidence,
+  both, or your own documents. "Verified on vendor documentation" and
+  "independently confirmed" never look the same.
+- **What you need to get answered before you buy.** The open questions, ordered
+  by how much they could change the decision, with what was checked and which
+  vendor should answer.
 - **What could change the evaluation.** The specific facts that would move the
   picture, so you know what to chase.
 - **Demo questions** built from the weak spots, with what to listen for.

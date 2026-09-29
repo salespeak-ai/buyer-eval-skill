@@ -42,5 +42,6 @@ Events land in the analytics database as `event_type='buyer_eval'`.
   `python3` on macOS), so telemetry failed silently for those users even after
   consent. Fixed in v4.0.0. Undercounts before that release are expected.
 - The telemetry server drops events whose User-Agent it does not accept (HTTP
-  200 instead of 201, logged as `dropped_by_server`). v4.0.0 sends
-  `buyer-eval-skill/4.0.0`. Confirm the server accepts it after release.
+  200 instead of 201, logged as `dropped_by_server`). `buyer-eval-skill/4.0.0`
+  was confirmed accepted (HTTP 201) on 2026-09-28. The User-Agent format is
+  unchanged in later versions; spot-check the audit log after each release.

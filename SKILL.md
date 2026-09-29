@@ -1,6 +1,6 @@
 ---
 name: buyer-eval-skill
-version: 4.0.0
+version: 4.1.0
 description: |
   An AI analyst for buying B2B software. Investigates what vendors claim, checks
   the evidence, surfaces contradictions and unanswered questions, and produces a
@@ -105,8 +105,9 @@ example claude.ai), or a one-line JSON object with the buyer's saved context.
 The profile holds only reusable buying context: `company_name`, `company_size`,
 `industry`, `region`, `systems`, `requirements`, `hard_constraints` (including
 the buyer's own budget ceiling, which stays local), `preferred_criteria`,
-`last_category`. Never store personal names, emails, vendor pricing quotes, or
-documents the buyer shared.
+`last_category`. A deadline or requirement goes in `hard_constraints` only if
+the buyer said it disqualifies vendors; otherwise in `requirements`. Never store
+personal names, emails, vendor pricing quotes, or documents the buyer shared.
 
 ---
 

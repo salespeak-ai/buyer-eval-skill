@@ -6,10 +6,30 @@ without a setup interview.
 
 Also load: `evidence-model.md`, `frontdoor-api.md`, `report-format.md`.
 
-**Budget.** Aim to deliver in roughly 5 to 15 minutes. At most one question to
-the buyer before research starts. Roughly 15 to 20 web searches or fetches per
-vendor (vendor-agent turns do not count). Depth goes to the claims that matter
-most, not to coverage of everything.
+**Budget.** Aim to deliver in roughly 5 to 10 minutes. At most one question to
+the buyer before research starts. Initial research budget: **about 8-12 web
+searches or fetches per vendor** (vendor-agent turns do not count). This is a
+starting budget, not a cap.
+
+**Depth on uncertainty, not a fixed research quota.** The goal is to find the few
+things that could change whether the buyer should proceed, reject, or
+investigate further. Go past the initial budget only when:
+
+- a material claim is still unresolved,
+- credible sources contradict each other,
+- an important limitation needs confirmation,
+- a claim could materially change the buyer's assessment,
+- independent corroboration is reasonably obtainable and would matter, or
+- a hard constraint for one vendor rests on weaker evidence than the same
+  constraint for another (check the weaker one; do not re-check the others).
+
+Stop researching a claim as soon as the evidence is sufficient for the buyer's
+decision. Never collect more sources just to raise the source count.
+
+**What counts:** every web search and page fetch, including failed, blocked,
+and challenge-pass calls. The Frontdoor discover call and vendor-agent turns do
+not count. When a page is blocked or empty, try one other route at most (for
+example a fetch after a search), then record it as not accessible and move on.
 
 ---
 
@@ -74,21 +94,30 @@ notes, security questionnaire), read them now. Their contents are buyer evidence
    pricing, integrations, security/trust and docs pages.
 4. Keep **5-8 material claims per vendor**, a similar number for each vendor.
    Prefer claims that decide the purchase over filler that every vendor in the
-   category makes.
+   category makes. If a stated criterion has no vendor claim at all (for example
+   the vendor publishes no price), do not invent a claim row for it: it belongs
+   in "Most important unknown" and "What you need to get answered before you
+   buy". Research that serves the category rather than one vendor (for example
+   how long a SOC 2 Type II observation window lasts) counts against the budget
+   of the vendor it informs.
 
 ---
 
 ## Q4. Check the claims
 
-For each claim, look for vendor evidence (docs, trust pages) and independent
-evidence (reviews, community threads, customer write-ups, third-party docs,
-press). One or two targeted searches per claim is usually enough. Classify with
-the statuses and confidence rules in `evidence-model.md`.
+Work the most decision-relevant claims first. For each, look for vendor
+documentation (docs, trust and pricing pages) and independent evidence
+(reviews, community threads, customer write-ups, third-party docs, press). One
+targeted search or fetch per claim is often enough; spend more only where the
+budget rules above allow. Classify each claim with a status, an evidence basis,
+and a confidence (`evidence-model.md` sections 3, 3a and 4).
 
 While doing this, track:
 
-- **Unanswered questions:** material questions no source answered clearly. For
-  each, note what you checked. These are a headline section of the report.
+- **Unanswered questions:** questions that matter to the decision and that no
+  source answered clearly. For each, note what you checked and its priority
+  (critical, important, useful; see `report-format.md`). These are a headline
+  section of the report. Do not invent questions to fill the section.
 - **Contradictions and qualifications** across sources.
 - **Material risks** you encounter in passing (recent layoffs, acquisition,
   security incident, product sunset). Quick Eval does not run the full risk
@@ -100,7 +129,7 @@ While doing this, track:
 ## Q5. Challenge pass
 
 Run the challenge pass from `evidence-model.md` section 6. Spend at least two
-searches trying to disprove the apparent leader (or, for a single vendor, the
+searches or fetches trying to disprove the apparent leader (or, for a single vendor, the
 most favorable finding).
 
 ---

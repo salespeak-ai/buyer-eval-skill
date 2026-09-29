@@ -10,30 +10,142 @@
     "next_question": "Ask Example Vendor A to show a custom object syncing both ways, live, in a sandbox."
   },
   "criteria": [
-    {"text": "Bidirectional Salesforce sync, including custom objects", "origin": "stated"},
-    {"text": "Live within 90 days", "origin": "stated"},
-    {"text": "Built for a mixed high-touch and digital-led CS model", "origin": "inferred"},
-    {"text": "SCIM provisioning for security review", "origin": "inferred"}
+    {
+      "text": "Bidirectional Salesforce sync, including custom objects",
+      "origin": "stated"
+    },
+    {
+      "text": "Live within 90 days",
+      "origin": "stated"
+    },
+    {
+      "text": "Built for a mixed high-touch and digital-led CS model",
+      "origin": "inferred"
+    },
+    {
+      "text": "SCIM provisioning for security review",
+      "origin": "inferred"
+    }
   ],
   "vendors": [
-    {"name": "Example Vendor A", "domain": "example-a.test", "fit": "Strong", "confidence": "Medium",
-     "strongest": "Salesforce integration depth", "concern": "Pricing and packaging are not public",
-     "summary": "Documentation and customer accounts agree on standard-object sync in both directions. Custom-object support is documented but its services requirement is unclear.",
-     "agent_channel": "none"},
-    {"name": "Example Vendor B", "domain": "example-b.test", "fit": "Moderate", "confidence": "Medium",
-     "strongest": "Digital-led customer journeys", "concern": "Implementation time",
-     "summary": "Strong for automated, one-to-many programs, which its reviews confirm. The fast-implementation claim did not hold up, which matters given your 90-day window.",
-     "agent_channel": "conversation"}
+    {
+      "name": "Example Vendor A",
+      "domain": "example-a.test",
+      "fit": "Strong",
+      "confidence": "Medium",
+      "strongest": "Salesforce integration depth",
+      "concern": "Pricing and packaging are not public",
+      "summary": "Documentation and customer accounts agree on standard-object sync in both directions. Custom-object support is documented but its services requirement is unclear.",
+      "agent_channel": "none"
+    },
+    {
+      "name": "Example Vendor B",
+      "domain": "example-b.test",
+      "fit": "Moderate",
+      "confidence": "Medium",
+      "strongest": "Digital-led customer journeys",
+      "concern": "Implementation time",
+      "summary": "Strong for automated, one-to-many programs, which its reviews confirm. The fast-implementation claim did not hold up, which matters given your 90-day window.",
+      "agent_channel": "conversation"
+    }
   ],
   "claims": [
-    {"vendor": "Example Vendor A", "claim": "Bidirectional Salesforce sync for standard objects", "claim_source": "Vendor website", "evidence": "Integration docs describe field mapping both ways; several customer reviews mention it working as described.", "evidence_type": "independent", "status": "Verified", "confidence": "High", "sources": [1, 2]},
-    {"vendor": "Example Vendor A", "claim": "Custom objects supported in sync", "claim_source": "Vendor docs", "evidence": "Documented, but the setup guide says custom objects are 'configured with your onboarding team'. No customer account found.", "evidence_type": "vendor", "status": "Qualified", "confidence": "Medium", "sources": [1]},
-    {"vendor": "Example Vendor A", "claim": "SOC 2 Type II certified", "claim_source": "Vendor website", "evidence": "Trust page names the audit firm and offers the report under NDA.", "evidence_type": "vendor", "status": "Verified", "confidence": "High", "sources": [3]},
-    {"vendor": "Example Vendor A", "claim": "SCIM provisioning available", "claim_source": "Vendor docs", "evidence": "SCIM is documented; the plan it belongs to is not stated anywhere public.", "evidence_type": "vendor", "status": "Unknown", "confidence": "Low", "sources": [1]},
-    {"vendor": "Example Vendor B", "claim": "Customers go live in 6 weeks", "claim_source": "Vendor AI agent", "evidence": "Two customer accounts describe 4-6 month rollouts for teams your size; no account of a 6-week rollout found.", "evidence_type": "independent", "status": "Contradicted", "confidence": "Medium", "sources": [4, 5]},
-    {"vendor": "Example Vendor B", "claim": "Automated journeys for one-to-many programs", "claim_source": "Vendor website", "evidence": "Consistent theme in reviews from digital-led CS teams.", "evidence_type": "independent", "status": "Verified", "confidence": "High", "sources": [4]},
-    {"vendor": "Example Vendor B", "claim": "Native Salesforce integration", "claim_source": "Vendor AI agent", "evidence": "Integration exists; docs describe sync from Salesforce only, with writes back via a paid connector.", "evidence_type": "vendor", "status": "Qualified", "confidence": "Medium", "sources": [6]},
-    {"vendor": "Example Vendor B", "claim": "Used by 1,000+ companies", "claim_source": "Vendor website", "evidence": "No independent count found.", "evidence_type": "none", "status": "Unverified", "confidence": "Low", "sources": []}
+    {
+      "vendor": "Example Vendor A",
+      "claim": "Bidirectional Salesforce sync for standard objects",
+      "claim_source": "Vendor website",
+      "evidence": "Integration docs describe field mapping both ways; several customer reviews mention it working as described.",
+      "status": "Verified",
+      "confidence": "High",
+      "sources": [
+        1,
+        2
+      ],
+      "basis": "vendor_and_independent"
+    },
+    {
+      "vendor": "Example Vendor A",
+      "claim": "Custom objects supported in sync",
+      "claim_source": "Vendor docs",
+      "evidence": "Documented, but the setup guide says custom objects are 'configured with your onboarding team'. No customer account found.",
+      "status": "Qualified",
+      "confidence": "Medium",
+      "sources": [
+        1
+      ],
+      "basis": "vendor_docs"
+    },
+    {
+      "vendor": "Example Vendor A",
+      "claim": "SOC 2 Type II certified",
+      "claim_source": "Vendor website",
+      "evidence": "Trust page names the audit firm and offers the report under NDA.",
+      "status": "Verified",
+      "confidence": "Medium",
+      "sources": [
+        3
+      ],
+      "basis": "vendor_docs"
+    },
+    {
+      "vendor": "Example Vendor A",
+      "claim": "SCIM provisioning available",
+      "claim_source": "Vendor docs",
+      "evidence": "SCIM is documented; the plan it belongs to is not stated anywhere public.",
+      "status": "Unknown",
+      "confidence": "Low",
+      "sources": [
+        1
+      ],
+      "basis": "vendor_docs"
+    },
+    {
+      "vendor": "Example Vendor B",
+      "claim": "Customers go live in 6 weeks",
+      "claim_source": "Vendor AI agent",
+      "evidence": "Two customer accounts describe 4-6 month rollouts for teams your size; no account of a 6-week rollout found.",
+      "status": "Contradicted",
+      "confidence": "Medium",
+      "sources": [
+        4,
+        5
+      ],
+      "basis": "independent"
+    },
+    {
+      "vendor": "Example Vendor B",
+      "claim": "Automated journeys for one-to-many programs",
+      "claim_source": "Vendor website",
+      "evidence": "Consistent theme in reviews from digital-led CS teams.",
+      "status": "Verified",
+      "confidence": "High",
+      "sources": [
+        4
+      ],
+      "basis": "independent"
+    },
+    {
+      "vendor": "Example Vendor B",
+      "claim": "Native Salesforce integration",
+      "claim_source": "Vendor AI agent",
+      "evidence": "Integration exists; docs describe sync from Salesforce only, with writes back via a paid connector.",
+      "status": "Qualified",
+      "confidence": "Medium",
+      "sources": [
+        6
+      ],
+      "basis": "vendor_docs"
+    },
+    {
+      "vendor": "Example Vendor B",
+      "claim": "Used by 1,000+ companies",
+      "claim_source": "Vendor website",
+      "evidence": "No independent count found.",
+      "status": "Unverified",
+      "confidence": "Low",
+      "sources": [],
+      "basis": "vendor_claim"
+    }
   ],
   "could_change": [
     "If Example Vendor A confirms custom-object sync without professional services, its fit on your first criterion moves from qualified to fully met.",
@@ -41,25 +153,89 @@
     "If SCIM is an add-on for either vendor, total cost and security review timing change."
   ],
   "unanswered": [
-    {"question": "Which plan includes SCIM provisioning?", "why": "Your security review requires automated deprovisioning.", "checked": "Pricing pages, docs, G2, Example Vendor B's AI agent", "vendor": "Both", "material": true},
-    {"question": "Does custom-object sync need a services engagement?", "why": "It affects cost and your 90-day timeline.", "checked": "Docs, setup guide, community forum", "vendor": "Example Vendor A", "material": true},
-    {"question": "What happens to historical data during migration?", "why": "Losing health-score history resets your baselines.", "checked": "Docs, migration guide, reviews", "vendor": "Both", "material": false}
+    {
+      "question": "Which plan includes SCIM provisioning?",
+      "why": "Your security review requires automated deprovisioning.",
+      "checked": "Pricing pages, docs, G2, Example Vendor B's AI agent",
+      "vendor": "Both",
+      "priority": "critical"
+    },
+    {
+      "question": "Does custom-object sync need a services engagement?",
+      "why": "It affects cost and your 90-day timeline.",
+      "checked": "Docs, setup guide, community forum",
+      "vendor": "Example Vendor A",
+      "priority": "critical"
+    },
+    {
+      "question": "What happens to historical data during migration?",
+      "why": "Losing health-score history resets your baselines.",
+      "checked": "Docs, migration guide, reviews",
+      "vendor": "Both",
+      "priority": "useful"
+    }
   ],
   "demo_questions": [
-    {"vendor": "Example Vendor A", "question": "Show a custom object syncing both ways, live, in a sandbox.", "listen_for": "Whether it needs your onboarding team or a paid package."},
-    {"vendor": "Example Vendor A", "question": "Which plan includes SCIM, and what does the plan you'd quote us cost?", "listen_for": "Add-on pricing."},
-    {"vendor": "Example Vendor B", "question": "Introduce us to two customers our size who went live in under 90 days.", "listen_for": "Hesitation, or references from much smaller teams."},
-    {"vendor": "Example Vendor B", "question": "Is writing back to Salesforce included, or is it the paid connector?", "listen_for": "A separate line item."}
+    {
+      "vendor": "Example Vendor A",
+      "question": "Show a custom object syncing both ways, live, in a sandbox.",
+      "listen_for": "Whether it needs your onboarding team or a paid package."
+    },
+    {
+      "vendor": "Example Vendor A",
+      "question": "Which plan includes SCIM, and what does the plan you'd quote us cost?",
+      "listen_for": "Add-on pricing."
+    },
+    {
+      "vendor": "Example Vendor B",
+      "question": "Introduce us to two customers our size who went live in under 90 days.",
+      "listen_for": "Hesitation, or references from much smaller teams."
+    },
+    {
+      "vendor": "Example Vendor B",
+      "question": "Is writing back to Salesforce included, or is it the paid connector?",
+      "listen_for": "A separate line item."
+    }
   ],
   "review_changes": [
     "Example Vendor B's implementation claim moved from Unverified to Contradicted after a targeted search for rollout accounts."
   ],
   "sources": [
-    {"id": 1, "title": "Example Vendor A integration documentation (fictional)", "url": "", "type": "vendor"},
-    {"id": 2, "title": "Review site, customer reviews mentioning Salesforce sync (fictional)", "url": "", "type": "independent"},
-    {"id": 3, "title": "Example Vendor A trust page (fictional)", "url": "", "type": "vendor"},
-    {"id": 4, "title": "Review site, Example Vendor B reviews (fictional)", "url": "", "type": "independent"},
-    {"id": 5, "title": "Community thread on Example Vendor B rollout (fictional)", "url": "", "type": "independent"},
-    {"id": 6, "title": "Example Vendor B Salesforce integration docs (fictional)", "url": "", "type": "vendor"}
+    {
+      "id": 1,
+      "title": "Example Vendor A integration documentation (fictional)",
+      "url": "",
+      "type": "vendor"
+    },
+    {
+      "id": 2,
+      "title": "Review site, customer reviews mentioning Salesforce sync (fictional)",
+      "url": "",
+      "type": "independent"
+    },
+    {
+      "id": 3,
+      "title": "Example Vendor A trust page (fictional)",
+      "url": "",
+      "type": "vendor"
+    },
+    {
+      "id": 4,
+      "title": "Review site, Example Vendor B reviews (fictional)",
+      "url": "",
+      "type": "independent"
+    },
+    {
+      "id": 5,
+      "title": "Community thread on Example Vendor B rollout (fictional)",
+      "url": "",
+      "type": "independent"
+    },
+    {
+      "id": 6,
+      "title": "Example Vendor B Salesforce integration docs (fictional)",
+      "url": "",
+      "type": "vendor"
+    }
   ]
 }

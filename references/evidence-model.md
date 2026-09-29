@@ -52,23 +52,41 @@ Rules:
   page is a vendor claim about itself and competitor content about the rival.
 - **Vendor evidence can verify only narrow, self-describing facts.** A published
   API reference verifies that an endpoint exists. A trust page listing a SOC 2
-  Type II report verifies that the vendor states it holds one (strong when a
-  report or auditor is named). Vendor evidence cannot verify outcome claims
+  Type II report verifies that the vendor states it holds one. Vendor evidence cannot verify outcome claims
   such as time-to-value, ROI, ease of use, or customer satisfaction. Those need
   independent or buyer evidence.
 - **Corroboration must be independent.** Two sources that repeat the same
   upstream (a press release echoed by three news sites, Crunchbase and Tracxn
-  echoing the same self-reported number) count as one source.
+  echoing the same self-reported number) count as one source. A review or
+  comparison site that restates the vendor's own terms (eligibility, pricing,
+  "no personal guarantee") is not independent corroboration of them; only
+  first-hand accounts or independent testing are.
+- **Negative claims** ("no personal guarantee", "no setup fee") are Verified
+  only when a committal source states them outright (contract language making
+  the company solely liable, a fee schedule showing none). A marketing or FAQ
+  statement alone, with the contract unread, is Verified at most on the FAQ as
+  vendor documentation; say the contract was not read.
 - **Buyer evidence is strong but specific.** A proposal verifies what this vendor
-  offered this buyer. Label it "buyer evidence" in the table and never persist it.
+  offered this buyer. Documents the buyer shares are buyer evidence even when the
+  vendor wrote them (a proposal, an RFP answer). Label them "buyer evidence" and
+  never persist them. Buyer evidence contradicts a general claim only when the
+  buyer's situation is the one the claim covers (a proposal quoting 90 days for a
+  standard rollout contradicts "live in 30 days"); if the difference comes from
+  the buyer's unusual scope, the claim is Qualified.
 - **Competitor content cannot verify or contradict.** It dominates search results
   in many categories. Use it only as a lead: a claim it makes becomes a question
-  to check elsewhere or to ask the vendor. Never count it as independent.
+  to check elsewhere or to ask the vendor. Never count it as independent. You may
+  mention it in the evidence text ("a competitor's blog alleges X; not counted")
+  and list it in sources with type `competitor`.
 - **Read the source, not a summary of it.** Search-result snippets and
   AI-generated search summaries are leads, not evidence. Fetch the page. If the
   page is blocked (G2, Gartner, Glassdoor often are), record it as "not
   accessible" in what was checked; a vendor's own quote of a third-party rating
   stays a vendor claim. A tool limitation is a gap, never a finding.
+- **Syndicated or incentivized reviews** (review-site content republished on
+  marketplaces, reviews gathered through vendor campaigns) still count as
+  independent, but cap their confidence at Medium when they are the only
+  independent source.
 - **Self-reported numbers stay labeled.** Revenue, headcount, and customer counts
   from Latka, Crunchbase, Tracxn, PitchBook estimates, or LinkedIn counts are
   directional. Present them as "reported by X, unaudited".
@@ -79,15 +97,50 @@ Rules:
 
 | Status | Meaning |
 |---|---|
-| **Verified** | Enough supporting evidence exists. For capability facts: vendor evidence that commits to specifics, or independent evidence. For outcome claims: independent or buyer evidence. |
+| **Verified** | Enough supporting evidence exists. For narrow capability facts: vendor documentation that commits to specifics, or independent evidence. For outcome claims: independent or buyer evidence. A vendor claim alone (website copy, a vendor AI agent answer) never makes a claim Verified. |
 | **Qualified** | Directionally true, but evidence shows a material limitation (plan tier, add-on cost, engineering effort, region, scale limit). State the qualification in the table. |
-| **Contradicted** | Credible evidence materially conflicts with the claim. Name the conflicting source. |
+| **Contradicted** | Credible evidence materially conflicts with the claim. Name the conflicting source. Use Contradicted rather than Qualified when the limitation defeats the claim as a buyer would read it (for example "bidirectional sync" that only syncs one way for the objects this buyer needs); use Qualified when the claim holds for the main case and fails only at an edge (a tier, an add-on, a scale limit). |
 | **Unverified** | The vendor makes the claim; you looked and did not find enough corroboration. Not a negative finding by itself. |
-| **Unknown** | The vendor makes the claim, but the part that matters cannot be assessed from any source (for example: SCIM exists, but which plan includes it is stated nowhere). |
+| **Unknown** | The vendor makes the claim and part of it checks out, but the part that matters cannot be assessed from any source (for example: SCIM exists, but which plan includes it is stated nowhere). If no part of the claim is supported, it is Unverified, not Unknown. |
 
 Material questions the vendor makes **no** statement about do not go in the
-claims table. They go in "Questions we still could not answer". Every row in the
-claims table counts toward "claims investigated".
+claims table. They go in "What you need to get answered before you buy". Every
+row in the claims table counts toward "claims investigated".
+
+## 3a. Evidence basis (shown for every claim)
+
+The status says what Buyer Eval concluded. The **evidence basis** says what that
+conclusion rests on, so a reader never mistakes vendor documentation for
+independent confirmation. Every claim gets exactly one:
+
+| Basis | Use when the status rests on | JSON value |
+|---|---|---|
+| **Vendor claim only** | Marketing copy, sales content, or vendor AI agent answers, with nothing more committal found | `vendor_claim` |
+| **Vendor documentation** | Docs, trust pages, pricing pages, published terms (first-party but specific) | `vendor_docs` |
+| **Vendor + independent evidence** | Vendor documentation and at least one independent source bearing on the same point (agreeing or qualifying) | `vendor_and_independent` |
+| **Independent evidence** | Independent sources only (for example customer accounts contradicting a marketing claim) | `independent` |
+| **Buyer-provided evidence** | Documents or results the buyer shared, alone or as the deciding source | `buyer` |
+| **Mixed evidence** | Sources that point different ways without resolving, or a mix not captured above | `mixed` |
+
+The basis names the evidence that **decided the status**, not where the claim
+came from. Every claim originates with the vendor; the vendor's own statement of
+the claim never counts toward the basis. So a marketing claim qualified by
+customer reviews has basis **Independent evidence**; a documented capability
+confirmed by reviews has **Vendor + independent evidence**. For Unknown claims,
+the basis names the sources that bear on the part that could be assessed.
+Pricing and plan pages are vendor documentation for what they state (plans,
+packaging, limits), even when prices are not listed.
+
+Rules:
+
+- A properly documented narrow capability can be **Verified on Vendor
+  documentation**. Do not downgrade it just because no independent source
+  exists, and do not describe it as independently confirmed.
+- **Vendor claim only** can never be Verified. With nothing more found, the
+  claim is Unverified (or Unknown if the part that matters cannot be assessed).
+- A vendor AI agent answer is a vendor claim. It cannot move a claim above
+  Unverified on its own; documentation or independent evidence must do that.
+- Competitor content never counts toward any basis.
 
 Absence of evidence is not evidence of absence. "Unverified" means you could not
 confirm it, never that it is false.
@@ -98,16 +151,21 @@ confirm it, never that it is false.
 
 Assign confidence per claim:
 
-- **High:** vendor evidence plus independent evidence agree, or buyer evidence
-  directly addresses it, or multiple independent sources agree.
+- **High:** the sources that decide the status are strong and consistent with
+  each other: vendor evidence plus independent evidence agree, buyer evidence
+  directly addresses it, or multiple independent sources agree (including
+  agreeing on a qualification or contradiction).
 - **Medium:** one solid source, or several sources of the same type. Vendor
   evidence alone for a narrow, self-describing fact (an API endpoint, a listed
-  certification) is Medium.
+  certification, a help-center FAQ) is Medium. Published contract or program
+  terms that state the point directly can be High: they are the strongest kind
+  of vendor documentation because the vendor is bound by them.
 - **Low:** only vendor claims, only thin or dated independent evidence, or
   sources that conflict without resolution.
 
-Assign **evidence confidence per vendor** from its claims: High if most material
-claims are High; Low if most material claims are Low or Unknown; otherwise Medium.
+Assign **evidence confidence per vendor** from its claims, weighting the claims
+tied to the buyer's stated criteria most: High if those are mostly High; Low if
+those are mostly Low or Unknown; otherwise Medium.
 
 **Balance.** Investigate a similar number of claims per vendor (within one or
 two). A vendor whose agent volunteers more claims must not end up with a longer,
