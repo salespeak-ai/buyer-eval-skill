@@ -21,22 +21,35 @@ factual sentence either cites a source or is phrased as the buyer's stated input
    - Most important question to ask next
 2. **Evaluation criteria.** Each marked stated, inferred, or discovered.
 3. **Claims vs. Evidence.** The central table. Grouped by vendor for multi-vendor
-   runs. Columns: Claim | Source of claim | Evidence | Status | Confidence.
-   Keep each cell to one or two sentences.
-4. **Where each vendor appears strongest.** Per vendor: fit, evidence
-   confidence, counts of contradictions and unknowns, strongest fit, biggest
-   concern, and two or three sentences relative to the buyer's criteria. No
-   sweeping statements without evidence.
+   runs. Columns: **Claim** (with where the vendor made it) | **Status** (with
+   confidence) | **Evidence basis** | **What the evidence says**. Keep each cell
+   to one or two sentences. In chat, use the same four columns.
+4. **Vendor assessment.** Heading: "Where each vendor appears strongest" when
+   there are several vendors, "Vendor assessment" when there is one. Per
+   vendor: fit, evidence confidence, counts of contradictions and unknowns,
+   strongest fit (single vendor: "Key strength"), biggest concern (single
+   vendor: "Key concern"), and two or three sentences relative to the buyer's
+   criteria. No comparative wording ("stronger than", "wins") in a
+   single-vendor report. No sweeping statements without evidence.
 5. **What could change the evaluation.** Specific unresolved facts and how each
    would move the picture. ("If Vendor A shows custom-object sync works
    bidirectionally without professional services, its fit on the Salesforce
    criterion moves from Moderate to Strong.")
-6. **Questions we still could not answer.** For each: the question, why it
-   matters, what was checked, which vendor should answer, and whether it could
-   change the decision.
+6. **What you need to get answered before you buy.** Ordered by decision
+   impact, highest first:
+   - **Critical:** the answer could decide whether the vendor is viable
+     (a required capability, integration behavior, data residency, contract or
+     pricing condition).
+   - **Important:** the answer could materially change cost, implementation,
+     risk, or fit.
+   - **Useful:** worth clarifying; unlikely to change the decision alone.
+   For each: the question, why it matters, what was checked, which vendor
+   should answer, and its priority. Include only questions that matter to the
+   decision; an empty section is better than a padded one.
 7. **Questions for the next demo.** Per vendor, 3-5 questions derived from
    unverified claims, contradictions, and unknowns, each with what to listen for.
-8. **What changed during review** (only if the challenge pass changed something).
+8. **What changed during review** (only if the challenge pass or expansion
+   research changed or sharpened a finding).
 9. **Deep Eval only:** risk signals, dimension scores, per-vendor detail.
 10. **Sources.** Numbered, each typed as vendor, independent, or buyer.
 11. **Method note.** Rendered automatically in HTML.
@@ -90,7 +103,7 @@ their section. Counts in "What we found" are computed by the renderer from
       "claim": "Typical implementation takes 6 weeks",
       "claim_source": "Vendor website (implementation page)",
       "evidence": "No independent accounts found; one G2 review mentions 3 months.",
-      "evidence_type": "independent",
+      "basis": "independent",
       "status": "Unverified",
       "confidence": "Low",
       "sources": [3, 7]
@@ -105,7 +118,7 @@ their section. Counts in "What we found" are computed by the renderer from
       "why": "Your security team requires automated deprovisioning.",
       "checked": "Pricing page, docs, vendor AI agent, G2",
       "vendor": "Vendor A",
-      "material": true
+      "priority": "critical"
     }
   ],
   "demo_questions": [
@@ -133,11 +146,13 @@ Field values:
 - `vendors[].confidence`, `claims[].confidence`: `High` | `Medium` | `Low`
 - `vendors[].agent_channel`: `conversation` | `none` | `failed` | `unreachable`
 - `claims[].status`: `Verified` | `Qualified` | `Contradicted` | `Unverified` | `Unknown`
-- `claims[].evidence_type`: the strongest evidence that decided the status: `independent` | `buyer` | `vendor` (vendor evidence such as docs or pricing pages) | `none` (only vendor claims, or competitor content)
+- `claims[].basis`: what the status rests on (`evidence-model.md` section 3a): `vendor_claim` | `vendor_docs` | `vendor_and_independent` | `independent` | `buyer` | `mixed`. The renderer refuses to show `Verified` on `vendor_claim` and displays it as Unverified with a warning.
+- `unanswered[].priority`: `critical` | `important` | `useful`. The renderer sorts by it.
 - `claims[].claim_source`: free text naming the first-party source, for example "Vendor website", "Vendor AI agent", "Vendor docs", "Proposal (buyer-provided)"
 - `sources[].type`: `vendor` (vendor claims and vendor evidence, including the vendor AI agent) | `independent` | `competitor` | `buyer`
 - `unanswered[].vendor`: a vendor name, `Both` / `All vendors`, or `Your team` for questions only the buyer can answer
-- `risks`: anything found; in Quick Eval the HTML adds a note that the full risk scan was not run
+- `risks`: anything found (`source` may be one id or a list of ids); in Quick Eval the HTML adds a note that the full risk scan was not run
+- If no vendor has an AI agent, say so in one line in chat ("No vendor AI agents were found; claims come from vendor sites, docs and independent sources")
 - `scores`: Deep Eval only, 1-5 integers; use `null` for GAP
 - `buyer`: company name, or a descriptor such as "120-person B2B SaaS company" if no name was given. Never a person's name.
 

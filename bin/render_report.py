@@ -33,6 +33,18 @@ CHANNEL_LABEL = {
     "failed": "Vendor AI agent check failed",
     "unreachable": "Vendor AI agent exists; not reachable from this environment",
 }
+BASIS_LABEL = {
+    "vendor_claim": "Vendor claim only",
+    "vendor_docs": "Vendor documentation",
+    "vendor_and_independent": "Vendor + independent evidence",
+    "independent": "Independent evidence",
+    "buyer": "Buyer-provided evidence",
+    "mixed": "Mixed evidence",
+}
+# v4.0 reports used evidence_type; map it so old JSON still renders.
+LEGACY_BASIS = {"vendor": "vendor_docs", "independent": "independent", "buyer": "buyer", "none": "vendor_claim"}
+PRIORITY_ORDER = ["critical", "important", "useful"]
+PRIORITY_LABEL = {"critical": "Critical", "important": "Important", "useful": "Useful"}
 ORIGIN_LABEL = {"stated": "Stated by you", "inferred": "Inferred", "discovered": "Discovered"}
 SOURCE_TYPE_LABEL = {"vendor": "Vendor", "independent": "Independent", "competitor": "Competitor", "buyer": "Your team"}
 
@@ -75,6 +87,8 @@ sup a{color:var(--muted);text-decoration:none;font-size:11px}
 .vcard h3{margin:0 0 8px}
 .vcard dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0 0 10px;font-size:14px}
 .vcard dt{color:var(--muted)}
+.vnote{font-size:14px;margin:0 0 8px}
+.vlabel{display:block;font-size:12px;color:var(--muted)}
 .vcard dd{margin:0}
 .channel{font-size:12px;color:var(--muted);margin-top:8px}
 ul.clean{padding-left:18px;margin:0 0 10px}
@@ -83,7 +97,13 @@ ul.clean li{margin-bottom:6px}
 .q{border-top:1px solid var(--line);padding:10px 0}
 .q:first-child{border-top:0}
 .q .label{font-size:12px;color:var(--muted)}
-.material{font-size:12px;font-weight:600;color:var(--bad)}
+.prio{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+padding:2px 8px;border-radius:4px;margin-right:8px;vertical-align:2px}
+.p-critical{color:#fff;background:var(--bad)}
+.p-important{color:var(--warn);background:var(--warnbg)}
+.p-useful{color:var(--none);background:var(--nonebg)}
+.basis{font-size:13px}
+.claimsrc{display:block;font-size:12px;color:var(--muted);margin-top:3px}
 ol.sources{padding-left:22px;font-size:13px;color:var(--muted)}
 ol.sources a{color:var(--info);word-break:break-all}
 .method{margin-top:40px;padding:16px;background:var(--soft);border-radius:8px;font-size:13px;color:var(--muted)}
@@ -98,8 +118,10 @@ table.stack td{display:block;border:0;padding:3px 0;width:auto!important}
 table.stack td[data-label]::before{content:attr(data-label);display:block;font-size:11px;
 text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 table.stack td:first-child{font-weight:600}}
-@media print{main{padding:0;max-width:none}body{font-size:12px}h2{break-after:avoid}
-tr,.vcard,.q{break-inside:avoid}a{color:inherit}.tablewrap{overflow:visible}}
+@media print{main{padding:0;max-width:none}body{font-size:12px}h2,h3{break-after:avoid}
+tr,.q{break-inside:avoid}.vcard{break-inside:auto}a{color:inherit}
+.tablewrap{overflow:visible;display:block}table{break-inside:auto}thead{display:table-header-group}
+.vendors{display:block}.vcard{margin-bottom:12px}}
 """
 
 
@@ -135,11 +157,40 @@ def cite(ids, known_ids) -> str:
     return "<sup>" + "".join(parts) + "</sup>"
 
 
+_WARNED: set = set()
+
+
+def claim_basis(c: dict) -> str:
+    b = c.get("basis")
+    if b in BASIS_LABEL:
+        return b
+    return LEGACY_BASIS.get(c.get("evidence_type"), "mixed")
+
+
+def effective_status(c: dict) -> str:
+    """A vendor claim alone can never render as Verified."""
+    st = c.get("status") if c.get("status") in STATUSES else "Unknown"
+    if st == "Verified" and claim_basis(c) == "vendor_claim":
+        key = id(c)
+        if key not in _WARNED:
+            _WARNED.add(key)
+            print(f"WARNING: '{c.get('claim')}' is Verified on a vendor claim only; shown as Unverified.",
+                  file=sys.stderr)
+        return "Unverified"
+    return st
+
+
+def unanswered_priority(q: dict) -> str:
+    p = q.get("priority")
+    if p in PRIORITY_ORDER:
+        return p
+    return "important" if q.get("material") else "useful"
+
+
 def count_statuses(claims):
     counts = {s: 0 for s in STATUSES}
     for c in claims:
-        st = c.get("status")
-        counts[st if st in counts else "Unknown"] += 1
+        counts[effective_status(c)] += 1
     return counts
 
 
@@ -208,40 +259,51 @@ def render(data: dict) -> str:
                 continue
             trs = "".join(
                 "<tr>"
-                f"<td>{esc(c.get('claim'))}</td>"
-                f"<td data-label=\"Source of claim\">{esc(c.get('claim_source'))}</td>"
-                f"<td data-label=\"Evidence\">{esc(c.get('evidence'))}{cite(c.get('sources'), known_ids)}</td>"
-                f"<td>{pill(c.get('status'))} <span class=\"conf\">{esc(c.get('confidence'))} confidence</span></td>"
+                f"<td>{esc(c.get('claim'))}"
+                + (f"<span class=\"claimsrc\">Claimed in: {esc(c.get('claim_source'))}</span>" if c.get('claim_source') else "")
+                + "</td>"
+                f"<td>{pill(effective_status(c))}"
+                + (f"<br><span class=\"conf\">{esc(c.get('confidence'))} confidence</span>" if c.get('confidence') else "")
+                + "</td>"
+                f"<td data-label=\"Evidence basis\" class=\"basis\">{esc(BASIS_LABEL[claim_basis(c)])}</td>"
+                f"<td data-label=\"What the evidence says\">{esc(c.get('evidence'))}{cite(c.get('sources'), known_ids)}</td>"
                 "</tr>" for c in rows)
             head = f"<h3>{esc(vn)}</h3>" if multi else ""
-            parts.append(f"""{head}<div class="tablewrap"><table class="stack"><thead><tr><th style="width:26%">Claim</th>
-<th style="width:16%">Source of claim</th><th>Evidence</th><th style="width:17%">Status</th></tr></thead><tbody>{trs}</tbody></table></div>""")
+            parts.append(f"""{head}<div class="tablewrap"><table class="stack"><thead><tr><th style="width:28%">Claim</th>
+<th style="width:14%">Status</th><th style="width:16%">Evidence basis</th><th>What the evidence says</th></tr></thead><tbody>{trs}</tbody></table></div>""")
         out.append(section("Claims vs. evidence", "".join(parts), "claims"))
 
     # 4. Vendor assessment
+    single = len(vendors) == 1
     if vendors:
         cards = []
         for v in vendors:
             vc = [c for c in claims if c.get("vendor") == v.get("name")]
             vcounts = count_statuses(vc)
-            applies = [q for q in (data.get("unanswered") or []) if q.get("material") and (
+            applies = [q for q in (data.get("unanswered") or []) if (
                 q.get("vendor") == v.get("name")
                 or str(q.get("vendor") or "").strip().lower() in {"both", "all", "all vendors", "each vendor"})]
-            unknowns = len(applies) if applies else vcounts["Unknown"]
+            applies = [q for q in applies if unanswered_priority(q) in ("critical", "important")]
+            unknowns = len(applies)
             dl = [
                 ("Fit to criteria", v.get("fit")),
                 ("Evidence confidence", v.get("confidence")),
                 ("Verified claims", f'{vcounts["Verified"]} of {len(vc)}' if vc else None),
                 ("Contradicted / qualified", f'{vcounts["Contradicted"]} / {vcounts["Qualified"]}' if vc else None),
-                ("Material unknowns", unknowns),
-                ("Strongest fit", v.get("strongest")),
-                ("Biggest concern", v.get("concern")),
+                ("Unknown claims", vcounts["Unknown"] if vc else None),
+                ("Open critical or important questions", unknowns),
             ]
             dls = "".join(f"<dt>{esc(k)}</dt><dd>{esc(val)}</dd>" for k, val in dl if val not in (None, ""))
+            notes = "".join(
+                f'<p class="vnote"><span class="vlabel">{esc(k)}</span>{esc(val)}</p>'
+                for k, val in (("Key strength" if single else "Strongest fit", v.get("strongest")),
+                               ("Key concern" if single else "Biggest concern", v.get("concern")))
+                if val)
             ch = CHANNEL_LABEL.get(v.get("agent_channel"), "")
-            cards.append(f"""<div class="vcard"><h3>{esc(v.get('name'))}</h3><dl>{dls}</dl>
+            cards.append(f"""<div class="vcard"><h3>{esc(v.get('name'))}</h3><dl>{dls}</dl>{notes}
 <p>{esc(v.get('summary'))}</p>{f'<p class="channel">{esc(ch)}</p>' if ch else ''}</div>""")
-        out.append(section("Where each vendor appears strongest", f'<div class="vendors">{"".join(cards)}</div>', "vendors"))
+        out.append(section("Vendor assessment" if single else "Where each vendor appears strongest",
+                           f'<div class="vendors">{"".join(cards)}</div>', "vendors"))
 
     # 5. What could change
     cc = data.get("could_change") or []
@@ -253,12 +315,16 @@ def render(data: dict) -> str:
     ua = data.get("unanswered") or []
     if ua:
         qs = []
+        ua = sorted(ua, key=lambda q: PRIORITY_ORDER.index(unanswered_priority(q)))
         for q in ua:
-            mat = '<span class="material">Could change the decision</span>' if q.get("material") else ""
-            qs.append(f"""<div class="q"><p><strong>{esc(q.get('question'))}</strong> {mat}</p>
+            p = unanswered_priority(q)
+            chip = f'<span class="prio p-{p}">{PRIORITY_LABEL[p]}</span>'
+            qs.append(f"""<div class="q"><p>{chip}<strong>{esc(q.get('question'))}</strong></p>
 <p><span class="label">Why it matters:</span> {esc(q.get('why'))}</p>
 <p><span class="label">Checked:</span> {esc(q.get('checked'))} &middot; <span class="label">Who should answer:</span> {esc(q.get('vendor'))}</p></div>""")
-        out.append(section("Questions we still could not answer", "".join(qs), "unanswered"))
+        legend = ('<p class="conf">Ordered by decision impact. Critical: could decide whether the vendor is viable. '
+                  'Important: could change cost, implementation, risk, or fit. Useful: worth clarifying.</p>')
+        out.append(section("What you need to get answered before you buy", legend + "".join(qs), "unanswered"))
 
     # 7. Demo questions
     dq = data.get("demo_questions") or []
@@ -339,17 +405,21 @@ def render(data: dict) -> str:
         out.append(section("Sources", f'<ol class="sources">{items}</ol>', "sources"))
 
     # 11. Method
-    out.append("""<div class="method"><p><strong>How to read this.</strong> Each row in Claims vs. evidence is a specific
+    out.append(f"""<div class="method"><p><strong>How to read this.</strong> Each row in Claims vs. evidence is a specific
 statement a vendor makes. Claims come from the vendor's website, documentation, or AI agent, and are first-party.
 They are checked against vendor documentation, independent sources (customer reviews and accounts, analyst and press
 coverage, community discussions, third-party documentation) and anything your team provided. Content written by
 the vendor's competitors is treated as a lead, never as independent evidence.</p>
 <p><strong>Statuses.</strong> Verified: enough supporting evidence. Qualified: true with material limits. Contradicted:
 credible evidence conflicts. Unverified: the vendor says so and it was not corroborated, which is not the same as false.
-Unknown: no source answers it.</p>
+Unknown: the part that matters cannot be assessed from any source.</p>
+<p><strong>Evidence basis.</strong> What each status rests on. "Vendor documentation" means the vendor's own docs,
+trust, or pricing pages: specific and first-party, not independent confirmation. "Vendor + independent evidence" and
+"Independent evidence" mean at least one source the vendor does not control. "Vendor claim only" can never be
+Verified.</p>
 <p><strong>Neutrality.</strong> Answers from a vendor's AI agent are treated as vendor claims. Having an AI agent does not
-improve a vendor's fit, confidence, or score. Every vendor's claims are checked to the same standard.</p>
-<p>This brief was produced by an AI research agent and has not been reviewed by the vendors. Verify material points
+improve a vendor's fit, confidence, or score. {"The vendor's claims were checked to the same standard any vendor's would be." if single else "Every vendor's claims are checked to the same standard."}</p>
+<p>This brief was produced by an AI research agent and has not been reviewed by {"the vendor" if single else "the vendors"}. Verify material points
 before contracting.</p></div>""")
     out.append('<footer>Generated with Buyer Eval, an open-source buyer research skill: '
                'github.com/salespeak-ai/buyer-eval-skill</footer>')

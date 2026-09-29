@@ -274,13 +274,13 @@ const Found: React.FC = () => {
 };
 
 // 4. Claims vs evidence
-const ROWS: {vendor: string; claim: string; source: string; evidence: string; status: Status}[] = [
-  {vendor: 'A', claim: 'Bidirectional Salesforce sync (standard objects)', source: 'Vendor website', evidence: 'Docs describe it; customer reviews confirm it works', status: 'Verified'},
-  {vendor: 'A', claim: 'Custom objects supported in sync', source: 'Vendor docs', evidence: 'Setup guide: “configured with your onboarding team”', status: 'Qualified'},
-  {vendor: 'A', claim: 'SCIM provisioning available', source: 'Vendor docs', evidence: 'Documented; which plan includes it is stated nowhere', status: 'Unknown'},
-  {vendor: 'B', claim: 'Customers go live in 6 weeks', source: 'Vendor AI agent', evidence: 'Two customer accounts describe 4-6 month rollouts', status: 'Contradicted'},
-  {vendor: 'B', claim: 'Native Salesforce integration', source: 'Vendor AI agent', evidence: 'Reads from Salesforce; writing back needs a paid connector', status: 'Qualified'},
-  {vendor: 'B', claim: 'Used by 1,000+ companies', source: 'Vendor website', evidence: 'No independent count found', status: 'Unverified'},
+const ROWS: {vendor: string; claim: string; source: string; basis: string; evidence: string; status: Status}[] = [
+  {vendor: 'A', claim: 'Bidirectional Salesforce sync (standard objects)', source: 'Vendor website', basis: 'Vendor + independent', evidence: 'Docs describe it; customer reviews confirm it works', status: 'Verified'},
+  {vendor: 'A', claim: 'Custom objects supported in sync', source: 'Vendor docs', basis: 'Vendor documentation', evidence: 'Setup guide: “configured with your onboarding team”', status: 'Qualified'},
+  {vendor: 'A', claim: 'SCIM provisioning available', source: 'Vendor docs', basis: 'Vendor documentation', evidence: 'Documented; which plan includes it is stated nowhere', status: 'Unknown'},
+  {vendor: 'B', claim: 'Customers go live in 6 weeks', source: 'Vendor AI agent', basis: 'Independent evidence', evidence: 'Two customer accounts describe 4-6 month rollouts', status: 'Contradicted'},
+  {vendor: 'B', claim: 'Native Salesforce integration', source: 'Vendor AI agent', basis: 'Vendor documentation', evidence: 'Reads from Salesforce; writing back needs a paid connector', status: 'Qualified'},
+  {vendor: 'B', claim: 'Used by 1,000+ companies', source: 'Vendor website', basis: 'Vendor claim only', evidence: 'No independent count found', status: 'Unverified'},
 ];
 const Claims: React.FC = () => {
   const frame = useCurrentFrame();
@@ -294,7 +294,7 @@ const Claims: React.FC = () => {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: '90px 1.35fr 0.8fr 1.6fr 190px',
+              gridTemplateColumns: '80px 1.3fr 180px 0.85fr 1.45fr',
               gap: 16,
               padding: '12px 16px',
               background: C.soft,
@@ -307,9 +307,9 @@ const Claims: React.FC = () => {
           >
             <div>Vendor</div>
             <div>Claim</div>
-            <div>Source of claim</div>
-            <div>Evidence</div>
             <div>Status</div>
+            <div>Evidence basis</div>
+            <div>What the evidence says</div>
           </div>
           {ROWS.map((r, i) => {
             const isHot = r.status === 'Contradicted';
@@ -320,7 +320,7 @@ const Claims: React.FC = () => {
                 style={{
                   ...rise(frame, 20 + i * 14, fps),
                   display: 'grid',
-                  gridTemplateColumns: '90px 1.35fr 0.8fr 1.6fr 190px',
+                  gridTemplateColumns: '80px 1.3fr 180px 0.85fr 1.45fr',
                   gap: 16,
                   padding: '16px 16px',
                   borderBottom: `1px solid ${C.line}`,
@@ -330,12 +330,15 @@ const Claims: React.FC = () => {
                 }}
               >
                 <div style={{fontWeight: 600}}>{r.vendor}</div>
-                <div>{r.claim}</div>
-                <div style={{color: C.muted}}>{r.source}</div>
-                <div>{r.evidence}</div>
+                <div>
+                  {r.claim}
+                  <div style={{fontSize: 16, color: C.muted, marginTop: 4}}>Claimed in: {r.source}</div>
+                </div>
                 <div>
                   <Pill status={r.status} />
                 </div>
+                <div style={{color: C.muted}}>{r.basis}</div>
+                <div>{r.evidence}</div>
               </div>
             );
           })}
@@ -383,9 +386,9 @@ const Neutral: React.FC = () => {
 
 // 6. Unanswered
 const QS = [
-  {q: 'Which plan includes SCIM provisioning?', who: 'Both vendors', checked: 'Pricing pages, docs, reviews, vendor AI agent', material: true},
-  {q: 'Does custom-object sync need a services engagement?', who: 'Vendor A', checked: 'Docs, setup guide, community forum', material: true},
-  {q: 'What happens to historical data during migration?', who: 'Both vendors', checked: 'Docs, migration guide, reviews', material: false},
+  {q: 'Which plan includes SCIM provisioning?', who: 'Both vendors', checked: 'Pricing pages, docs, reviews, vendor AI agent', prio: 'Critical'},
+  {q: 'Does custom-object sync need a services engagement?', who: 'Vendor A', checked: 'Docs, setup guide, community forum', prio: 'Critical'},
+  {q: 'What happens to historical data during migration?', who: 'Both vendors', checked: 'Docs, migration guide, reviews', prio: 'Useful'},
 ];
 const Unanswered: React.FC = () => {
   const frame = useCurrentFrame();
@@ -393,13 +396,28 @@ const Unanswered: React.FC = () => {
   return (
     <Scene dur={SCENES.unanswered[1]}>
       <AbsoluteFill style={{padding: '90px 140px'}}>
-        <Heading eyebrow="What you still need to find out" title="Questions we still could not answer" />
+        <Heading eyebrow="Ordered by decision impact" title="What you need to get answered before you buy" />
         <div style={{marginTop: 40}}>
           {QS.map((q, i) => (
             <div key={q.q} style={{...rise(frame, 20 + i * 22, fps), padding: '22px 0', borderTop: i ? `1px solid ${C.line}` : 'none'}}>
               <div style={{fontSize: 32, fontWeight: 600}}>
-                {q.q}{' '}
-                {q.material ? <span style={{fontSize: 20, color: C.bad[0], marginLeft: 10}}>Could change the decision</span> : null}
+                <span
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                    textTransform: 'uppercase',
+                    padding: '4px 10px',
+                    borderRadius: 5,
+                    marginRight: 14,
+                    verticalAlign: 4,
+                    color: q.prio === 'Critical' ? '#fff' : C.none[0],
+                    background: q.prio === 'Critical' ? C.bad[0] : C.none[1],
+                  }}
+                >
+                  {q.prio}
+                </span>
+                {q.q}
               </div>
               <div style={{fontSize: 22, color: C.muted, marginTop: 8}}>
                 Checked: {q.checked} · Who should answer: {q.who}
@@ -442,7 +460,7 @@ const Demo: React.FC = () => {
 
 // 8. Brief scroll
 const BRIEF_W = 1100;
-const BRIEF_H = Math.round((7510 / 2200) * BRIEF_W);
+const BRIEF_H = Math.round((7970 / 2200) * BRIEF_W);
 const Brief: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();

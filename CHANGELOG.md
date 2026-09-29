@@ -1,5 +1,24 @@
 # Changelog
 
+## 4.1.0: Refinement
+
+- **Faster Quick Eval.** Initial research budget is about 8-12 searches or
+  fetches per vendor (was 15-20). Research goes deeper only around material
+  uncertainty: unresolved claims, contradictions, limitations that need
+  confirming. "Depth on uncertainty, not a fixed research quota."
+- **Evidence basis on every claim** (vendor claim only, vendor documentation,
+  vendor + independent evidence, independent evidence, buyer-provided evidence,
+  mixed evidence), shown in chat and HTML. A claim resting on a vendor claim
+  alone, including a vendor AI agent answer, can never render as Verified; the
+  renderer enforces this.
+- **Claims table** is now Claim | Status | Evidence basis | What the evidence says.
+- **Single-vendor reports** use "Vendor assessment", "Key strength" and "Key
+  concern" instead of comparative wording.
+- **"What you need to get answered before you buy"** replaces "Questions we
+  still could not answer", ordered by priority: Critical, Important, Useful.
+- JSON: `claims[].basis` replaces `evidence_type`; `unanswered[].priority`
+  replaces `material`. Old reports still render.
+
 ## 4.0.0: Evidence first
 
 - **Quick Eval is the default.** One opening question at most, inferred criteria

@@ -221,8 +221,8 @@ Every specific number or factual claim from research must be tagged with its sou
 
 ---
 
-Record every claim and its evidence in the claims table as defined in
-`evidence-model.md`. The source tiers above describe reliability inside a
+Record every claim with its status, evidence basis, and confidence as defined
+in `evidence-model.md` (sections 3, 3a, 4). The source tiers above describe reliability inside a
 type; the type (vendor, independent, buyer) decides what a claim can be
 verified by.
 
