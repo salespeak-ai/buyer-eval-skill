@@ -83,6 +83,13 @@ Rules:
   page is blocked (G2, Gartner, Glassdoor often are), record it as "not
   accessible" in what was checked; a vendor's own quote of a third-party rating
   stays a vendor claim. A tool limitation is a gap, never a finding.
+- **Ask fetch tools neutral questions.** When a fetch tool summarizes a page
+  with a model, it can echo the question back as if the page said it. Ask it to
+  quote verbatim what the page says about a topic ("Quote every sentence about
+  QuickBooks and receipts"), never to confirm a specific fact ("Does it sync
+  receipts to QuickBooks?"). Treat anything the summary asserts without quoted
+  page text as not found. For a fact that decides a stated requirement, base
+  the status on quoted text only, and put the key words in the evidence cell.
 - **Syndicated or incentivized reviews** (review-site content republished on
   marketplaces, reviews gathered through vendor campaigns) still count as
   independent, but cap their confidence at Medium when they are the only

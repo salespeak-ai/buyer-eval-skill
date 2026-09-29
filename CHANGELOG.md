@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.1.1
+
+- **Soft expansion ceiling:** about 4 expansion calls per vendor after the
+  initial 8-12 (which now includes the two challenge-pass calls). More only for
+  a stated-requirement claim that could change which vendor leads; otherwise
+  the question goes to "What you need to get answered before you buy".
+- **Two attempts per fact**, across all pages and routes, then record it as not
+  accessible (was one retry per page).
+- **Neutral fetch prompts:** ask fetch tools to quote page text on a topic,
+  never to confirm a specific fact. Testing caught a fetch summarizer echoing
+  the question back as a vendor claim. Facts that decide a stated requirement
+  rest on quoted text only.
+
 ## 4.1.0: Refinement
 
 - **Faster Quick Eval.** Initial research budget is about 8-12 searches or

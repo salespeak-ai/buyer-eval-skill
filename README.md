@@ -1,7 +1,7 @@
 # Buyer Eval
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-4.1.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.1.1-blue)](CHANGELOG.md)
 
 **An AI analyst for buying B2B software.**
 

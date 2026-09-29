@@ -8,8 +8,8 @@ Also load: `evidence-model.md`, `frontdoor-api.md`, `report-format.md`.
 
 **Budget.** Aim to deliver in roughly 5 to 10 minutes. At most one question to
 the buyer before research starts. Initial research budget: **about 8-12 web
-searches or fetches per vendor** (vendor-agent turns do not count). This is a
-starting budget, not a cap.
+searches or fetches per vendor** (vendor-agent turns do not count), including
+the two challenge-pass calls. Calls past 12 are expansion.
 
 **Depth on uncertainty, not a fixed research quota.** The goal is to find the few
 things that could change whether the buyer should proceed, reject, or
@@ -20,16 +20,27 @@ investigate further. Go past the initial budget only when:
 - an important limitation needs confirmation,
 - a claim could materially change the buyer's assessment,
 - independent corroboration is reasonably obtainable and would matter, or
-- a hard constraint for one vendor rests on weaker evidence than the same
-  constraint for another (check the weaker one; do not re-check the others).
+- a stated requirement for one vendor rests on weaker evidence than the same
+  requirement for another (check the weaker one; do not re-check the others).
+
+**Soft ceiling: about 4 expansion calls per vendor.** Go beyond that only for a
+claim tied to a requirement the buyer stated that could change which vendor
+leads (or, for a single vendor, whether to proceed). Anything else still open
+at that point goes to "What you need to get answered before you buy"; that is a
+valid outcome, not a failure.
 
 Stop researching a claim as soon as the evidence is sufficient for the buyer's
 decision. Never collect more sources just to raise the source count.
 
 **What counts:** every web search and page fetch, including failed, blocked,
 and challenge-pass calls. The Frontdoor discover call and vendor-agent turns do
-not count. When a page is blocked or empty, try one other route at most (for
-example a fetch after a search), then record it as not accessible and move on.
+not count.
+
+**Two attempts per fact.** For any one fact (for example "does the contract
+contain a personal guarantee"), make at most two attempts to reach a source
+that answers it, across all pages and routes combined. After that, record the
+source as not accessible. If the fact bears on a stated requirement, it becomes
+a Critical or Important open question for the vendor to answer.
 
 ---
 
@@ -109,7 +120,8 @@ Work the most decision-relevant claims first. For each, look for vendor
 documentation (docs, trust and pricing pages) and independent evidence
 (reviews, community threads, customer write-ups, third-party docs, press). One
 targeted search or fetch per claim is often enough; spend more only where the
-budget rules above allow. Classify each claim with a status, an evidence basis,
+budget rules above allow. When a fetch tool answers through a model summary,
+follow the neutral-prompt rule in `evidence-model.md` section 2. Classify each claim with a status, an evidence basis,
 and a confidence (`evidence-model.md` sections 3, 3a and 4).
 
 While doing this, track:
