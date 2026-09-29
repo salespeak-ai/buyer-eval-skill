@@ -33,7 +33,7 @@ A few minutes later:
 
 ![Claims vs. evidence: the vendor's own AI agent claimed a 6-week rollout; independent evidence contradicts it](promo/buyer-eval-claims.gif)
 
-[Watch the 60-second demo](promo/buyer-eval-demo.mp4) (illustrative example).
+[Watch the 70-second narrated demo](promo/buyer-eval-demo.mp4) (illustrative example).
 
 ## What you get
 
