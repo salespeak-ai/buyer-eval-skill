@@ -1,6 +1,6 @@
 ---
 name: buyer-eval-skill
-version: 4.1.0
+version: 4.1.1
 description: |
   An AI analyst for buying B2B software. Investigates what vendors claim, checks
   the evidence, surfaces contradictions and unanswered questions, and produces a
