@@ -31,6 +31,10 @@ A few minutes later:
 *Illustrative example with fictional vendors. See
 [a full illustrative Decision Brief](https://salespeak-ai.github.io/buyer-eval-skill/).*
 
+![Claims vs. evidence: the vendor's own AI agent claimed a 6-week rollout; independent evidence contradicts it](promo/buyer-eval-claims.gif)
+
+[Watch the 60-second demo](promo/buyer-eval-demo.mp4) (illustrative example).
+
 ## What you get
 
 - **Claims vs. evidence.** Every material vendor claim, where it came from, what
