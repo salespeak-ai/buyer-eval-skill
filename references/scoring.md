@@ -39,13 +39,19 @@ weights used.
    vendor claim until vendor documentation or independent evidence supports it.
    Two vendors with the same supported evidence get the same score regardless
    of how the claims were gathered.
-3. **Pricing.** If any source (public page, vendor agent, buyer-provided quote)
-   gives specific pricing, score fit to budget. If none does, estimate a range
-   from category benchmarks for the buyer's size, label it "estimate", and apply
-   a -1 opacity penalty. Pricing disclosed through any channel counts equally.
+3. **Pricing.** Score fit to budget from specific prices in vendor evidence
+   (a public pricing page or published marketplace list price for the relevant
+   package) or buyer evidence (a written quote). A price stated only by a
+   vendor AI agent or sales content is a vendor claim: it does not count as
+   disclosed, so it cannot avoid the opacity penalty. Vague statements ("within
+   range") are not prices. If no qualifying price exists, estimate a range from
+   category benchmarks and any public price for a different package, label it
+   "estimate", score the estimate against the budget, then subtract 1 for
+   opacity (minimum 1).
 4. **GAP is honest.** Prefer GAP to a guessed 3.
-5. **Composite.** You may compute a weighted composite (one decimal) for the
-   buyer's reference. Never lead with it, never rank vendors by it alone, and
+5. **Composite.** You may compute a weighted composite (one decimal) in chat for
+   the buyer's reference, renormalizing weights over non-GAP dimensions. It is
+   not part of the report JSON. Never lead with it, never rank vendors by it alone, and
    never present a difference under 0.5 as meaningful. The decision is carried
    by fit, evidence confidence, contradictions, and unknowns.
 

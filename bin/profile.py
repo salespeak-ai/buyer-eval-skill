@@ -19,7 +19,7 @@ import argparse
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 PROFILE_PATH = Path(
@@ -78,7 +78,7 @@ def cmd_save(args) -> int:
         return 1
     current = load() or {}
     current.update(_clean(incoming))
-    current["updated_at"] = datetime.now(timezone.utc).date().isoformat()
+    current["updated_at"] = datetime.now().date().isoformat()
     current["schema_version"] = 1
     try:
         PROFILE_PATH.parent.mkdir(parents=True, exist_ok=True)

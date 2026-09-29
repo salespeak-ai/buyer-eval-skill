@@ -19,7 +19,18 @@
 - **HTML Decision Brief** rendered by `bin/render_report.py` (no dependencies).
 - **Saved buyer context** now actually persists, via `bin/profile.py`.
 - **Buyer evidence:** proposals, pricing, demo notes and similar can be included.
+- **Buyer privacy with vendor agents:** the buyer's company name, budget, other
+  vendors under evaluation, and document contents are never sent to a vendor AI
+  agent. (Testing showed the v3 tailoring instructions sent a budget ceiling to
+  a vendor's sales agent.)
+- **Competitor content** is its own evidence type and can never verify or
+  contradict a claim. Search snippets and AI search summaries are leads, not
+  evidence; blocked sources are recorded as gaps.
+- **Deep Eval** asks the buyer two consolidated messages instead of five, and
+  invites buyer evidence up front.
 - **Modular methodology** under `references/`. `EVALUATION.md` is now a pointer.
+- **Update check** only offers strictly newer versions (it previously offered
+  any version that differed, including downgrades).
 - **Fixes:** `bin/track.py` crashed under Python 3.9 (macOS default), silently
   disabling telemetry; telemetry version now read from `VERSION`; skill name
   matches the install directory (`/buyer-eval-skill`); `BUYER_EVAL_DIR` override.

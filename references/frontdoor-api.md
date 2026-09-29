@@ -17,7 +17,9 @@ and gains no scoring or confidence advantage.
 `GET /frontdoor/api/{domain}/discover` (domain like `bizzabo.com`)
 
 ```
-{"enabled": true, "domain": "bizzabo.com", "company_name": "Bizzabo", "organization_id": "..."}
+{"enabled": true, "domain": "bizzabo.com", "company_name": "Bizzabo", "organization_id": "...",
+ "agent": {"type": "agent", "status": "available", ...}}
+{"enabled": false, "domain": "gong.io", "message": "No agent found for 'gong.io'."}
 ```
 
 - `enabled: true`: an agent exists. Go to step 2.
@@ -38,6 +40,15 @@ Follow-ups pass the same `session_id` in the body so the agent keeps context:
 ```
 {"message": "Which of those steps need your professional services team?", "session_id": "uuid"}
 ```
+
+**What never goes to a vendor agent:** the buyer's company name, people's
+names, budget or price expectations, other vendors being evaluated, competitor
+prices, or anything from documents the buyer shared. Vendor agents are sales
+channels and log conversations. Describe context generically ("a ~400-person
+B2B SaaS company using Salesforce and Slack"), and only the parts a question
+needs; if the buyer gave no size or industry, do not invent one. Quoting the
+vendor's own public material back to it is fine. If the agent asks for more, do
+not supply it.
 
 Ask one question at a time. When an answer opens a relevant thread (for example,
 it names an integration in the buyer's stack), follow up before moving on. If an

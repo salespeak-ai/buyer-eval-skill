@@ -133,11 +133,13 @@ Field values:
 - `vendors[].confidence`, `claims[].confidence`: `High` | `Medium` | `Low`
 - `vendors[].agent_channel`: `conversation` | `none` | `failed` | `unreachable`
 - `claims[].status`: `Verified` | `Qualified` | `Contradicted` | `Unverified` | `Unknown`
-- `claims[].evidence_type`: strongest evidence type used: `vendor` | `independent` | `buyer` | `none`
+- `claims[].evidence_type`: the strongest evidence that decided the status: `independent` | `buyer` | `vendor` (vendor evidence such as docs or pricing pages) | `none` (only vendor claims, or competitor content)
 - `claims[].claim_source`: free text naming the first-party source, for example "Vendor website", "Vendor AI agent", "Vendor docs", "Proposal (buyer-provided)"
-- `sources[].type`: `vendor` | `independent` | `buyer`
+- `sources[].type`: `vendor` (vendor claims and vendor evidence, including the vendor AI agent) | `independent` | `competitor` | `buyer`
+- `unanswered[].vendor`: a vendor name, `Both` / `All vendors`, or `Your team` for questions only the buyer can answer
+- `risks`: anything found; in Quick Eval the HTML adds a note that the full risk scan was not run
 - `scores`: Deep Eval only, 1-5 integers; use `null` for GAP
-- `buyer`: omit if unknown. Never include a person's name.
+- `buyer`: company name, or a descriptor such as "120-person B2B SaaS company" if no name was given. Never a person's name.
 
 Render:
 

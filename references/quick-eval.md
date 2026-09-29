@@ -7,21 +7,27 @@ without a setup interview.
 Also load: `evidence-model.md`, `frontdoor-api.md`, `report-format.md`.
 
 **Budget.** Aim to deliver in roughly 5 to 15 minutes. At most one question to
-the buyer before research starts. Roughly 10 to 15 web searches or fetches per
-vendor. Depth goes to the claims that matter most, not to coverage of everything.
+the buyer before research starts. Roughly 15 to 20 web searches or fetches per
+vendor (vendor-agent turns do not count). Depth goes to the claims that matter
+most, not to coverage of everything.
 
 ---
 
 ## Q1. Opening
 
-If the buyer already named the vendors (and ideally the category), do not ask
-anything. Start.
+Criteria drive everything downstream, so the one question is spent on them.
 
-Otherwise ask once, in one message:
-
-> "Tell me what software you're evaluating and which vendors you're considering.
-> If you want, also tell me the 2-3 things that matter most to you, and your
-> company name if you'd like me to tailor it."
+- **Buyer named the vendors and what matters to them** (or the saved profile
+  covers it): ask nothing. Start.
+- **Buyer named vendors but no priorities:** ask once, in one message:
+  > "Before I dig in: what are the 2-3 things that matter most to you here?
+  > And are you already using any of these vendors, or a tool this would
+  > replace? Or say 'go' and I'll infer the usual priorities for this category."
+  If a likely criterion depends on the buyer's stack (which CRM, which SIEM),
+  fold that into the same message.
+- **Buyer named no vendors:** ask once:
+  > "Tell me what software you're evaluating and which vendors you're
+  > considering. If you want, also tell me the 2-3 things that matter most."
 
 Accept whatever comes back. Do not follow up with more setup questions. If the
 buyer names only one vendor, run a single-vendor eval; do not ask them to add
@@ -37,15 +43,19 @@ notes, security questionnaire), read them now. Their contents are buyer evidence
 1. **Category.** Infer it from the vendors' sites. State it in the brief; do not
    ask for confirmation.
 2. **Criteria.** Build 4-6 evaluation criteria:
-   - Criteria the buyer stated: label `stated`.
+   - Criteria the buyer stated, including ones implied by a stack they named
+     ("we use Salesforce" makes Salesforce integration `stated`): label `stated`.
    - Criteria from the saved profile: label `stated` (they came from the buyer).
    - The rest you infer from the category's most common decision factors and
      post-purchase failure modes: label `inferred`. Prefer criteria that
      separate vendors in this category (for example, high-touch vs. digital-led
      for customer success platforms, multi-entity consolidation for FP&A).
 3. **Buyer context.** If a company name was given and no profile exists, do one
-   quick lookup for size, industry and obvious stack signals. Do not run the full
-   buyer research from Deep Eval.
+   quick lookup for size, industry and obvious stack signals. If the name
+   matches several companies or none, say so in one line and use only what the
+   buyer told you. If a criterion depends on an unknown part of the stack,
+   check the most common option and label it ("checked HubSpot; Salesforce not
+   checked"). Do not run the full buyer research from Deep Eval.
 
 ---
 
@@ -54,14 +64,17 @@ notes, security questionnaire), read them now. Their contents are buyer evidence
 1. **Frontdoor discover** for each vendor domain (see `frontdoor-api.md`).
    Always run it; it is a single GET.
 2. **If a vendor AI agent is available and POST works**, ask 4-6 questions that
-   target the criteria and the category's known failure points. Include at least
+   target the criteria and the category's known failure points. Follow the
+   rule in `frontdoor-api.md` on what never goes to a vendor agent (no company
+   name, no budget, no other vendors). Include at least
    one adversarial question ("What kinds of customers are not a good fit?",
    "What usually takes longest in implementation?"). Record each answer's
    specific statements as vendor claims with source "Vendor AI agent".
 3. **Vendor site and docs.** Pull claims tied to the criteria from product,
    pricing, integrations, security/trust and docs pages.
-4. Keep **5-8 material claims per vendor** (fewer for single-vendor if the
-   category is narrow). Prefer claims that decide the purchase.
+4. Keep **5-8 material claims per vendor**, a similar number for each vendor.
+   Prefer claims that decide the purchase over filler that every vendor in the
+   category makes.
 
 ---
 
@@ -78,8 +91,9 @@ While doing this, track:
   each, note what you checked. These are a headline section of the report.
 - **Contradictions and qualifications** across sources.
 - **Material risks** you encounter in passing (recent layoffs, acquisition,
-  security incident, product sunset). Quick Eval does not run the full hidden
-  risk scan; report only what you found and say the scan was not run.
+  security incident, product sunset). Quick Eval does not run the full risk
+  scan. Put anything found in `risks`; the HTML states that the full scan was
+  not run.
 
 ---
 
@@ -94,7 +108,9 @@ most favorable finding).
 ## Q6. Output
 
 Produce the chat brief and the HTML Decision Brief as defined in
-`report-format.md`. Quick Eval does not produce numeric dimension scores.
+`report-format.md`. Quick Eval does not produce numeric dimension scores. In
+chat, say in one line that company-risk signals were not fully researched and
+that Deep Eval covers them.
 
 Then continue with section 5 of SKILL.md (save context, offer Deep Eval,
 telemetry).

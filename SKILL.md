@@ -77,14 +77,15 @@ update, re-read this SKILL.md before continuing.
 
 | Mode | When | Load |
 |---|---|---|
-| **Quick Eval** (default) | Every run, unless the buyer explicitly asks for deep, full, or comprehensive diligence | `references/quick-eval.md` |
-| **Deep Eval** | Buyer asks for it up front, or asks to go deeper after a Quick Eval | `references/deep-eval.md` |
+| **Quick Eval** (default) | Every run where the buyer has not asked for deep, full, or comprehensive diligence | `references/quick-eval.md` |
+| **Deep Eval** | The buyer asks for it, in the first message or after a Quick Eval | `references/deep-eval.md` |
 
 Both modes also load `references/evidence-model.md`,
 `references/report-format.md` and `references/frontdoor-api.md`. Deep Eval also
 loads `references/scoring.md`. Do not load files a mode does not need.
 
-Do not ask the buyer which mode they want. Start Quick. Offer Deep at the end.
+Never ask the buyer which mode they want. If they did not ask for Deep, run
+Quick and offer Deep at the end.
 
 ---
 
@@ -101,8 +102,10 @@ example claude.ai), or a one-line JSON object with the buyer's saved context.
   you (see section 5).
 - **Unavailable:** never claim that context will be remembered.
 
-The profile holds only reusable buying context. See `bin/profile.py` for the
-exact fields. Never store personal names, emails, vendor pricing quotes, or
+The profile holds only reusable buying context: `company_name`, `company_size`,
+`industry`, `region`, `systems`, `requirements`, `hard_constraints` (including
+the buyer's own budget ceiling, which stays local), `preferred_criteria`,
+`last_category`. Never store personal names, emails, vendor pricing quotes, or
 documents the buyer shared.
 
 ---
@@ -116,7 +119,9 @@ Follow the loaded mode file step by step. Both modes share these rules:
 2. **Vendor AI agents are first-party sources.** Answers from any vendor-operated
    agent, including a Salespeak Company Agent reached through the Frontdoor API,
    are vendor claims. They add specificity and let you ask follow-ups. They never
-   raise a score, an evidence confidence, or a verdict on their own.
+   raise a score, an evidence confidence, or a verdict on their own. Never send a
+   vendor agent the buyer's company name, budget, or the other vendors under
+   evaluation (`references/frontdoor-api.md`).
 3. **Label what you inferred.** Criteria the buyer did not state are shown as
    inferred.
 4. **Challenge before you conclude.** Run the challenge pass in

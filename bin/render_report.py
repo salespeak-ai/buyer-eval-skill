@@ -34,7 +34,7 @@ CHANNEL_LABEL = {
     "unreachable": "Vendor AI agent exists; not reachable from this environment",
 }
 ORIGIN_LABEL = {"stated": "Stated by you", "inferred": "Inferred", "discovered": "Discovered"}
-SOURCE_TYPE_LABEL = {"vendor": "Vendor", "independent": "Independent", "buyer": "Your team"}
+SOURCE_TYPE_LABEL = {"vendor": "Vendor", "independent": "Independent", "competitor": "Competitor", "buyer": "Your team"}
 
 CSS = """
 :root{--ink:#1b1d21;--muted:#5d6470;--line:#e3e5e9;--bg:#ffffff;--soft:#f6f7f9;
@@ -283,11 +283,20 @@ def render(data: dict) -> str:
 
     # 9. Deep: risks + scores
     risks = data.get("risks") or []
+    if data.get("mode") != "deep":
+        note = ('<p class="conf">Quick Eval does not run the full company-risk scan (leadership, funding, '
+                'employee sentiment, retention). Signals below were found in passing.</p>' if risks else
+                '<p class="conf">Not researched in Quick Eval. A Deep Eval covers leadership, funding, '
+                'employee sentiment, and retention signals.</p>')
+    else:
+        note = ""
     if risks:
         trs = "".join(f"<tr><td>{esc(r.get('vendor'))}</td><td>{esc(r.get('signal'))}{cite(r.get('source'), known_ids)}</td></tr>" for r in risks)
         out.append(section("Risk signals",
-                           f'<div class="tablewrap"><table class="stack"><thead><tr><th style="width:22%">Vendor</th><th>Signal</th></tr></thead><tbody>{trs}</tbody></table></div>',
+                           note + f'<div class="tablewrap"><table class="stack"><thead><tr><th style="width:22%">Vendor</th><th>Signal</th></tr></thead><tbody>{trs}</tbody></table></div>',
                            "risks"))
+    elif note:
+        out.append(section("Risk signals", note, "risks"))
     scores = data.get("scores") or []
     if scores:
         vnames = []
@@ -333,7 +342,8 @@ def render(data: dict) -> str:
     out.append("""<div class="method"><p><strong>How to read this.</strong> Each row in Claims vs. evidence is a specific
 statement a vendor makes. Claims come from the vendor's website, documentation, or AI agent, and are first-party.
 They are checked against vendor documentation, independent sources (customer reviews and accounts, analyst and press
-coverage, community discussions, third-party documentation) and anything your team provided.</p>
+coverage, community discussions, third-party documentation) and anything your team provided. Content written by
+the vendor's competitors is treated as a lead, never as independent evidence.</p>
 <p><strong>Statuses.</strong> Verified: enough supporting evidence. Qualified: true with material limits. Contradicted:
 credible evidence conflicts. Unverified: the vendor says so and it was not corroborated, which is not the same as false.
 Unknown: no source answers it.</p>
