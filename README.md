@@ -157,6 +157,12 @@ you prefer to block it at the firewall.
 Each run checks for a newer version (cached for 6 hours) and asks before
 updating.
 
+## Who maintains this
+
+Buyer Eval is maintained by [Salespeak](https://salespeak.ai), which also sells
+company-side AI products. Why we build tools for buyers, and what each one does
+with your data: [Salespeak for buyers](https://salespeak.ai/for-buyers/).
+
 ## Feedback
 
 [Open an issue](https://github.com/salespeak-ai/buyer-eval-skill/issues) for
